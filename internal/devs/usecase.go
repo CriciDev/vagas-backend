@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/CriciumaDevJobs/backend/handlers"
-	"github.com/CriciumaDevJobs/backend/infra"
+	"github.com/CriciumaDevJobs/backend/internal/auth"
 )
 
 type DevUseCase struct {
@@ -33,7 +33,7 @@ func (usecase *DevUseCase) CreateDev(ctx context.Context, dev *Dev) (CreateDevRo
 		return CreateDevRow{}, handlers.ErrEmailAlreadyInUse
 	}
 
-	hashedPassword, err := infra.EncryptPassword(dev.Password)
+	hashedPassword, err := auth.EncryptPassword(dev.Password)
 
 	if err != nil {
 		return CreateDevRow{}, err

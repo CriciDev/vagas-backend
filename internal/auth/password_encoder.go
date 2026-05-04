@@ -1,4 +1,4 @@
-package infra
+package auth
 
 import (
 	"unicode/utf8"
