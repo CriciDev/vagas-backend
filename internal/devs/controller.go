@@ -3,8 +3,9 @@ package devs
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
+
+	"github.com/CriciumaDevJobs/backend/handlers"
 )
 
 type DevController struct {
@@ -22,7 +23,7 @@ func NewDevController(usecase *DevUseCase) *DevController {
 func (controller *DevController) CreateDev(ctx context.Context, writer http.ResponseWriter, request *http.Request) {
 
 	if request.Method != http.MethodPost {
-		http.Error(writer, "Method not allowed", http.StatusMethodNotAllowed)
+		handlers.ResponseWithHttpError(writer, http.StatusMethodNotAllowed, "Method not Allowed")
 		return
 	}
 
@@ -31,16 +32,16 @@ func (controller *DevController) CreateDev(ctx context.Context, writer http.Resp
 	err := json.NewDecoder(request.Body).Decode(&dev)
 
 	if err != nil {
-		http.Error(writer, err.Error(), http.StatusBadRequest)
+		handlers.ResponseWithHttpError(writer, http.StatusBadRequest, "JSON Enviado não segue a estrutura esperada!")
 		return
 	}
 
-	err = controller.Usecase.CreateDev(ctx, &dev)
+	resp, err := controller.Usecase.CreateDev(ctx, &dev)
 
 	if err != nil {
-		http.Error(writer, err.Error(), http.StatusInternalServerError)
+		handlers.ResponseWithHttpError(writer, http.StatusUnprocessableEntity, err.Error())
 		return
 	}
 
-	fmt.Fprint(writer, "Desenvolvedor salvo com sucesso")
+	json.NewEncoder(writer).Encode(resp)
 }
