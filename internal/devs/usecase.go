@@ -3,6 +3,7 @@ package devs
 import (
 	"context"
 	"log"
+	"net/http"
 
 	"github.com/CriciumaDevJobs/backend/handlers"
 	"github.com/CriciumaDevJobs/backend/utils"
@@ -54,7 +55,7 @@ func (usecase *DevUseCase) CreateDev(ctx context.Context, dev *Dev) (*CreateDevR
 
 	if db_err != nil {
 		log.Printf("ERRO: Falha no banco de dados ao salvar novo usuário! Message: %s", db_err.Error())
-		return nil, handlers.NewError(500, "Erro Interno!")
+		return nil, handlers.NewError(http.StatusInternalServerError, "Erro Interno!")
 	}
 
 	return &resp, nil

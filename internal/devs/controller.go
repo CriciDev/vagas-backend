@@ -51,7 +51,7 @@ func (controller *DevController) FindDevProfile(writer http.ResponseWriter, requ
 	val, ok := value.(float64)
 
 	if !ok {
-		handlers.ResponseWithHttpError(writer, 500, "Erro foda")
+		handlers.ResponseWithHttpError(writer, http.StatusInternalServerError, "Erro foda")
 		return
 	}
 
