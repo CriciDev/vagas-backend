@@ -60,22 +60,44 @@ func (q *Queries) CreateDev(ctx context.Context, arg CreateDevParams) (CreateDev
 }
 
 const findDevByEmail = `-- name: FindDevByEmail :one
-SELECT name, email, skills, bio, availability, socials, created_at FROM devs WHERE email = $1
+SELECT id, name, email, password FROM devs WHERE email = $1
 `
 
 type FindDevByEmailRow struct {
-	Name         string    `json:"name"`
-	Email        string    `json:"email"`
-	Skills       []string  `json:"skills"`
-	Bio          string    `json:"bio"`
-	Availability bool      `json:"availability"`
-	Socials      []string  `json:"socials"`
-	CreatedAt    time.Time `json:"created_at"`
+	ID       int32  `json:"id"`
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 func (q *Queries) FindDevByEmail(ctx context.Context, email string) (FindDevByEmailRow, error) {
 	row := q.db.QueryRowContext(ctx, findDevByEmail, email)
 	var i FindDevByEmailRow
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.Password,
+	)
+	return i, err
+}
+
+const findDevByID = `-- name: FindDevByID :one
+SELECT name, email, skills, bio, availability, socials FROM devs WHERE id = $1
+`
+
+type FindDevByIDRow struct {
+	Name         string   `json:"name"`
+	Email        string   `json:"email"`
+	Skills       []string `json:"skills"`
+	Bio          string   `json:"bio"`
+	Availability bool     `json:"availability"`
+	Socials      []string `json:"socials"`
+}
+
+func (q *Queries) FindDevByID(ctx context.Context, id int32) (FindDevByIDRow, error) {
+	row := q.db.QueryRowContext(ctx, findDevByID, id)
+	var i FindDevByIDRow
 	err := row.Scan(
 		&i.Name,
 		&i.Email,
@@ -83,7 +105,6 @@ func (q *Queries) FindDevByEmail(ctx context.Context, email string) (FindDevByEm
 		&i.Bio,
 		&i.Availability,
 		pq.Array(&i.Socials),
-		&i.CreatedAt,
 	)
 	return i, err
 }
