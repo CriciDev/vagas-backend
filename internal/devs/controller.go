@@ -54,8 +54,6 @@ func (controller *DevController) FindDevProfile(writer http.ResponseWriter, requ
 		return
 	}
 
-	log.Println(*devID)
-
 	resp, err := controller.Usecase.FindDevByID(request.Context(), *devID)
 
 	if err != nil {
