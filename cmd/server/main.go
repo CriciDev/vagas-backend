@@ -5,17 +5,17 @@ import (
 	"net/http"
 
 	"github.com/CriciumaDevJobs/backend/infra"
-	"github.com/CriciumaDevJobs/backend/internal/devs"
+	"github.com/CriciumaDevJobs/backend/internal"
 )
 
 func main() {
 
 	db := infra.InitDB()
 
-	devs.InitializeDevContext(db)
+	app := internal.StartAppContext(db)
 
 	fmt.Println("Iniciando servidor")
 
 	fmt.Println("Servidor iniciado")
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe(":8080", app.Router)
 }
