@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"net/mail"
 
 	"github.com/CriciumaDevJobs/backend/handlers"
 	"github.com/CriciumaDevJobs/backend/utils"
@@ -104,6 +105,12 @@ func (dev *Dev) validate() *handlers.ErrorResponse {
 
 	if dev.Email == "" {
 		return handlers.ErrEmailNotEmpty
+	}
+
+	_, err := mail.ParseAddress(dev.Email)
+
+	if err != nil {
+		return handlers.ErrEmailAddressNotValid
 	}
 
 	if dev.Bio == "" {
