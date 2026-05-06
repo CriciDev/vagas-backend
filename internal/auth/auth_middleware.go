@@ -77,8 +77,7 @@ func getJWTKey() string {
 	key, ok := os.LookupEnv("JWT_SECRET_KEY")
 
 	if !ok {
-		log.Printf("ERRO: Variavel de ambiente para a Key JWT não foi definida")
-		panic("Adiocione a JWT Secret Key na variável de ambiente JWT_SECRET_KEY")
+		log.Fatalf("ERRO: Variavel de ambiente para a Key JWT não foi definida")
 	}
 
 	return key
