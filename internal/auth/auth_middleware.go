@@ -23,7 +23,7 @@ var (
 
 type ContextKey string
 
-func GenerateJwtToken(dev *devs.FindDevByEmailRow, expiration time.Time) (string, *handlers.ErrorResponse) {
+func GenerateJwtToken(dev *devs.FindDevByEmailRow, expiration time.Time) (string, error) {
 
 	claims := jwt.MapClaims{
 		"user_id":    dev.ID,
@@ -36,7 +36,7 @@ func GenerateJwtToken(dev *devs.FindDevByEmailRow, expiration time.Time) (string
 
 	if err != nil {
 		log.Printf("ERRO: Erro ao assinar token JWT! Message %s", err.Error())
-		return "", handlers.NewError(http.StatusInternalServerError, "Erro interno!")
+		return "", err
 	}
 
 	return signedToken, nil
