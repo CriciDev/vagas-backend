@@ -3,26 +3,17 @@ package infra
 import (
 	"database/sql"
 	"fmt"
+	"log"
+	"os"
 
 	_ "github.com/lib/pq"
 )
 
-const (
-	host     = "localhost"
-	port     = 5432
-	user     = "postgres"
-	password = "123"
-	dbname   = "dev-jobs"
-)
-
 func InitDB() *sql.DB {
 
-	fmt.Println("Iniciando conexão com bd postgres")
+	log.Printf("Iniciando conexão com Banco de Dados...")
 
-	psqlInfo := fmt.Sprintf(
-		"host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
-		host, port, user, password, dbname,
-	)
+	psqlInfo := getPsqlInfo()
 
 	db, err := sql.Open("postgres", psqlInfo)
 	if err != nil {
@@ -34,4 +25,23 @@ func InitDB() *sql.DB {
 	}
 
 	return db
+}
+
+func getEnvOrPanic(key string) string {
+	value, ok := os.LookupEnv(key)
+	if !ok {
+		log.Fatalf("ERRO: Variável de ambiente %s não definida!", key)
+	}
+	return value
+}
+
+func getPsqlInfo() string {
+	return fmt.Sprintf(
+		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		getEnvOrPanic("POSTGRES_HOST"),
+		getEnvOrPanic("POSTGRES_PORT"),
+		getEnvOrPanic("POSTGRES_USER"),
+		getEnvOrPanic("POSTGRES_PASSWORD"),
+		getEnvOrPanic("POSTGRES_DB"),
+	)
 }
