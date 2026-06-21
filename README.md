@@ -25,6 +25,30 @@ Interface web open source construída em Angular e Go para conectar profissionai
 
 ### Estrutura do Projeto
 
+```text
+.
+├── cmd/server/main.go
+├── infra/docker-compose.yml
+├── infra/postgres/init/001_init.sql
+├── internal/auth
+├── internal/config
+├── internal/database
+├── internal/devs
+├── internal/health
+├── Dockerfile
+├── Makefile
+├── go.mod
+└── README.md
+```
+
+O projeto segue uma estrutura idiomática para Go:
+
+- `cmd/server/main.go` é a entrada da aplicação.
+- `internal/auth` concentra autenticação, tokens e autorização por role.
+- `internal/devs` concentra o CRUD de developers.
+- `internal/database` concentra conexão, schema inicial e seed local.
+- `infra` concentra o ambiente local com Docker e PostgreSQL.
+
 ---
 
 ### Funcionalidades (MVP)
@@ -107,6 +131,30 @@ Rodar testes localmente:
 go test ./...
 ```
 
+Rode a aplicação:
+
+```bash
+make run
+```
+
+Rode os testes:
+
+```bash
+make test
+```
+
+Rode a verificação principal:
+
+```bash
+make check
+```
+
+Compile o binário:
+
+```bash
+make build
+```
+
 ---
 
 ### Como Contribuir
@@ -128,6 +176,7 @@ Estilo de código recomendado:
 - Utilize **tipagem explícita** em APIs públicas e services.
 - Componentes pequenos e focados; prefira composição a herança.
 - CSS: prefira componentes/estilos reutilizáveis em `shared`.
+- Go: mantenha o scaffold seco, evite camadas vazias e rode `make check` antes de abrir PR.
 - Commits: **Conventional Commits** (ex.: `feat:`, `fix:`, `docs:`).
 
 Abrindo issues:
