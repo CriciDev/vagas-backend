@@ -11,10 +11,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type memoryDeveloperRepository struct {
-	nextID int64
-	items  map[int64]Developer
-}
+type (
+	memoryDeveloperRepository struct {
+		nextID int64
+		items  map[int64]Developer
+	}
+)
 
 func newMemoryDeveloperRepository() *memoryDeveloperRepository {
 	return &memoryDeveloperRepository{nextID: 1, items: map[int64]Developer{}}

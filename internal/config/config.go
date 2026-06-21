@@ -2,13 +2,15 @@ package config
 
 import "os"
 
-type Config struct {
-	HTTPPort      string
-	DatabaseURL   string
-	JWTSecret     string
-	AdminEmail    string
-	AdminPassword string
-}
+type (
+	Config struct {
+		HTTPPort      string
+		DatabaseURL   string
+		JWTSecret     string
+		AdminEmail    string
+		AdminPassword string
+	}
+)
 
 func Load() Config {
 	return Config{

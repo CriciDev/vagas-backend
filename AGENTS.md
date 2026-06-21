@@ -19,3 +19,4 @@
 
 ## Code Style
 - Não use comentários em blocos de código a menos que isso seja expressamente solicitado pelo usuário.
+- Agrupe declarações relacionadas de `var` e `type` usando blocos `var (...)` e `type (...)`, como em `internal/devs/devs.go`, para manter a leitura mais limpa.

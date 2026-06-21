@@ -9,10 +9,12 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type Service struct {
-	repo      Repository
-	jwtSecret []byte
-}
+type (
+	Service struct {
+		repo      Repository
+		jwtSecret []byte
+	}
+)
 
 func NewService(repo Repository, jwtSecret string) *Service {
 	return &Service{repo: repo, jwtSecret: []byte(jwtSecret)}

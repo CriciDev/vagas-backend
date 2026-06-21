@@ -8,17 +8,19 @@ import (
 	"github.com/lib/pq"
 )
 
-type Repository interface {
-	Create(ctx context.Context, developer Developer) (Developer, error)
-	List(ctx context.Context) ([]Developer, error)
-	FindByID(ctx context.Context, id int64) (Developer, error)
-	Update(ctx context.Context, developer Developer) (Developer, error)
-	Delete(ctx context.Context, id int64) error
-}
+type (
+	Repository interface {
+		Create(ctx context.Context, developer Developer) (Developer, error)
+		List(ctx context.Context) ([]Developer, error)
+		FindByID(ctx context.Context, id int64) (Developer, error)
+		Update(ctx context.Context, developer Developer) (Developer, error)
+		Delete(ctx context.Context, id int64) error
+	}
 
-type PostgresRepository struct {
-	db *sql.DB
-}
+	PostgresRepository struct {
+		db *sql.DB
+	}
+)
 
 func NewPostgresRepository(db *sql.DB) *PostgresRepository {
 	return &PostgresRepository{db: db}
@@ -115,9 +117,11 @@ func (repo *PostgresRepository) Delete(ctx context.Context, id int64) error {
 	return nil
 }
 
-type scanner interface {
-	Scan(dest ...any) error
-}
+type (
+	scanner interface {
+		Scan(dest ...any) error
+	}
+)
 
 func scanDeveloper(row scanner) (Developer, error) {
 	var developer Developer

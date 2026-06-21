@@ -9,9 +9,11 @@ import (
 
 const userContextKey = "auth.user"
 
-type Handler struct {
-	service *Service
-}
+type (
+	Handler struct {
+		service *Service
+	}
+)
 
 func NewHandler(service *Service) *Handler {
 	return &Handler{service: service}

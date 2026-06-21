@@ -7,15 +7,19 @@ import (
 	"strings"
 )
 
-var ErrUserNotFound = errors.New("user not found")
+var (
+	ErrUserNotFound = errors.New("user not found")
+)
 
-type Repository interface {
-	FindByEmail(ctx context.Context, email string) (User, error)
-}
+type (
+	Repository interface {
+		FindByEmail(ctx context.Context, email string) (User, error)
+	}
 
-type PostgresRepository struct {
-	db *sql.DB
-}
+	PostgresRepository struct {
+		db *sql.DB
+	}
+)
 
 func NewPostgresRepository(db *sql.DB) *PostgresRepository {
 	return &PostgresRepository{db: db}

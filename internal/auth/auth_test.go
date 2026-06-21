@@ -10,9 +10,11 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type fakeAuthRepository struct {
-	users map[string]User
-}
+type (
+	fakeAuthRepository struct {
+		users map[string]User
+	}
+)
 
 func (repo fakeAuthRepository) FindByEmail(ctx context.Context, email string) (User, error) {
 	user, ok := repo.users[email]
