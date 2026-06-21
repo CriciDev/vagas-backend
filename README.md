@@ -22,6 +22,20 @@ Interface web open source construída em Angular e Go para conectar profissionai
 
 ### Estrutura do Projeto
 
+```text
+.
+├── cmd/server/main.go      # Entrada da aplicação
+├── go.mod                  # Módulo Go
+├── Makefile                # Atalhos de desenvolvimento
+└── README.md
+```
+
+O projeto segue uma estrutura idiomática para Go:
+
+- O scaffold começa seco: `cmd/server/main.go` é o único código da aplicação.
+- Crie diretórios como `internal`, `sql` ou `infra` apenas quando houver comportamento/configuração real.
+- Crie pacotes de domínio em `internal/<dominio>` apenas quando houver regras/tipos reais; evite arquivos vazios para antecipar camadas.
+
 ---
 
 ### Funcionalidades (MVP)
@@ -36,6 +50,30 @@ Interface web open source construída em Angular e Go para conectar profissionai
 ---
 
 ### Rodando o Projeto
+
+Rode a aplicação:
+
+```bash
+make run
+```
+
+Rode os testes:
+
+```bash
+make test
+```
+
+Rode a verificação principal:
+
+```bash
+make check
+```
+
+Compile o binário:
+
+```bash
+make build
+```
 
 ---
 
@@ -58,6 +96,7 @@ Estilo de código recomendado:
 - Utilize **tipagem explícita** em APIs públicas e services.
 - Componentes pequenos e focados; prefira composição a herança.
 - CSS: prefira componentes/estilos reutilizáveis em `shared`.
+- Go: mantenha o scaffold seco, evite camadas vazias e rode `make check` antes de abrir PR.
 - Commits: **Conventional Commits** (ex.: `feat:`, `fix:`, `docs:`).
 
 Abrindo issues:
