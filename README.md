@@ -17,6 +17,9 @@ Interface web open source construída em Angular e Go para conectar profissionai
 
 - **Angular**
 - **Golang**
+- **Gin**
+- **PostgreSQL**
+- **Docker**
 
 ---
 
@@ -36,6 +39,73 @@ Interface web open source construída em Angular e Go para conectar profissionai
 ---
 
 ### Rodando o Projeto
+
+Pré-requisitos:
+
+- Docker
+- Docker Compose
+
+Suba a API e o PostgreSQL:
+
+```bash
+docker compose -f infra/docker-compose.yml up --build
+```
+
+Verifique a API:
+
+```bash
+curl http://localhost:8080/health
+```
+
+Credenciais locais do admin:
+
+- E-mail: `admin@criciumadevs.local`
+- Senha: `admin123`
+
+Login local:
+
+```bash
+curl -X POST http://localhost:8080/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@criciumadevs.local","password":"admin123"}'
+```
+
+Listar devs:
+
+```bash
+curl http://localhost:8080/api/developers
+```
+
+Criar dev com token admin:
+
+```bash
+curl -X POST http://localhost:8080/api/developers \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"name":"Ada Lovelace","email":"ada@example.com","skills":["Go","Angular"],"available":true,"bio":"Dev da comunidade"}'
+```
+
+Atualizar dev:
+
+```bash
+curl -X PUT http://localhost:8080/api/developers/1 \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"name":"Ada Lovelace","email":"ada@example.com","skills":["Go","Angular","PostgreSQL"],"available":false,"bio":"Dev da comunidade"}'
+```
+
+Remover dev:
+
+```bash
+curl -X DELETE http://localhost:8080/api/developers/1 \
+  -H "Authorization: Bearer <token>"
+```
+
+Rodar testes localmente:
+
+```bash
+go test ./...
+```
 
 ---
 
