@@ -68,6 +68,7 @@ Pré-requisitos:
 
 - Docker
 - Docker Compose
+- Node.js/npm, apenas se for usar OpenCode + OpenSpec no fluxo de contribuição
 
 Suba a API e o PostgreSQL:
 
@@ -154,6 +155,66 @@ Compile o binário:
 ```bash
 make build
 ```
+
+---
+
+### Fluxo com OpenCode + OpenSpec
+
+Este projeto usa **OpenCode** como agente de desenvolvimento no terminal e **OpenSpec** para registrar intenção, decisões e tarefas antes da implementação.
+
+A ideia é simples: mudanças maiores devem começar com uma proposta revisável, não direto no código. Isso ajuda a comunidade a discutir o que será feito, por que será feito e quais tarefas precisam ser executadas.
+
+Instale o OpenCode:
+
+```bash
+curl -fsSL https://opencode.ai/install | bash
+```
+
+Ou, se preferir npm:
+
+```bash
+npm install -g opencode-ai
+```
+
+Instale o OpenSpec:
+
+```bash
+npm install -g @fission-ai/openspec@latest
+```
+
+Instale as dependências locais dos comandos do OpenCode:
+
+```bash
+cd .opencode
+npm install
+cd ..
+```
+
+Abra o OpenCode na raiz do projeto:
+
+```bash
+opencode
+```
+
+Comandos principais usados neste repositório:
+
+- `/opsx-explore`: explorar uma ideia, problema ou decisão sem alterar código.
+- `/opsx-propose <nome-da-mudanca>`: criar uma proposta OpenSpec com intenção, design e tarefas.
+- `/opsx-apply <nome-da-mudanca>`: implementar as tarefas de uma mudança já proposta.
+- `/opsx-sync <nome-da-mudanca>`: sincronizar specs da mudança com as specs principais.
+- `/opsx-archive <nome-da-mudanca>`: arquivar uma mudança concluída.
+
+Fluxo recomendado para contribuições maiores:
+
+1. Escolha uma issue no GitHub.
+2. Use `/opsx-explore` se a solução ainda estiver pouco clara.
+3. Use `/opsx-propose nome-da-mudanca` para criar a proposta.
+4. Discuta a proposta na issue ou no PR, se necessário.
+5. Use `/opsx-apply nome-da-mudanca` para implementar.
+6. Rode `make check` antes de abrir o PR.
+7. Depois da mudança revisada e concluída, use `/opsx-archive nome-da-mudanca`.
+
+Mudanças pequenas, como correções simples de texto, não precisam obrigatoriamente passar por OpenSpec. Use bom senso: se existe decisão de produto, contrato de API, banco de dados ou mudança de comportamento, prefira registrar a intenção antes.
 
 ---
 
