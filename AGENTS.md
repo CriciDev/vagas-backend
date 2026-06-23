@@ -2,8 +2,9 @@
 
 ## Project Shape
 - Go backend module: `github.com/CriciumaDevJobs/backend`; `go.mod` declares Go `1.25.4`.
-- Runtime entrypoint is `cmd/server/main.go`; it is intentionally the only application code in the scaffold.
-- Keep the scaffold dry: only add directories/packages when there is real behavior; do not create empty `doc.go`, `controller`, `repository`, `usecase`, `sql`, or `infra` placeholders.
+- Runtime entrypoint is `cmd/server/main.go`.
+- The backend has real behavior for health checks, auth, developer CRUD, database setup, and Docker local environment.
+- Keep the project dry: only add directories/packages when there is real behavior; do not create empty `doc.go`, `controller`, `repository`, `usecase`, `sql`, or `infra` placeholders.
 
 ## Commands
 - Run the app: `make run` or `go run ./cmd/server`.
@@ -13,5 +14,9 @@
 - Build output is `bin/server`; remove it with `make clean`.
 
 ## Current Gotchas
-- There is no committed infra, database, codegen, CI, or HTTP router yet; do not add tool-specific commands or docs until the corresponding files exist.
+- There is committed Gin, PostgreSQL, auth, Docker, and developer CRUD behavior.
 - Prefer `Makefile` and `go.mod` over prose when commands disagree.
+
+## Code Style
+- Não use comentários em blocos de código a menos que isso seja expressamente solicitado pelo usuário.
+- Agrupe declarações relacionadas de `var` e `type` usando blocos `var (...)` e `type (...)`, como em `internal/devs/devs.go`, para manter a leitura mais limpa.

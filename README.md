@@ -17,6 +17,9 @@ Interface web open source construída em Angular e Go para conectar profissionai
 
 - **Angular**
 - **Golang**
+- **Gin**
+- **PostgreSQL**
+- **Docker**
 
 ---
 
@@ -24,17 +27,27 @@ Interface web open source construída em Angular e Go para conectar profissionai
 
 ```text
 .
-├── cmd/server/main.go      # Entrada da aplicação
-├── go.mod                  # Módulo Go
-├── Makefile                # Atalhos de desenvolvimento
+├── cmd/server/main.go
+├── infra/docker-compose.yml
+├── infra/postgres/init/001_init.sql
+├── internal/auth
+├── internal/config
+├── internal/database
+├── internal/devs
+├── internal/health
+├── Dockerfile
+├── Makefile
+├── go.mod
 └── README.md
 ```
 
 O projeto segue uma estrutura idiomática para Go:
 
-- O scaffold começa seco: `cmd/server/main.go` é o único código da aplicação.
-- Crie diretórios como `internal`, `sql` ou `infra` apenas quando houver comportamento/configuração real.
-- Crie pacotes de domínio em `internal/<dominio>` apenas quando houver regras/tipos reais; evite arquivos vazios para antecipar camadas.
+- `cmd/server/main.go` é a entrada da aplicação.
+- `internal/auth` concentra autenticação, tokens e autorização por role.
+- `internal/devs` concentra o CRUD de developers.
+- `internal/database` concentra conexão, schema inicial e seed local.
+- `infra` concentra o ambiente local com Docker e PostgreSQL.
 
 ---
 
@@ -50,6 +63,74 @@ O projeto segue uma estrutura idiomática para Go:
 ---
 
 ### Rodando o Projeto
+
+Pré-requisitos:
+
+- Docker
+- Docker Compose
+- Node.js/npm, apenas se for usar OpenCode + OpenSpec no fluxo de contribuição
+
+Suba a API e o PostgreSQL:
+
+```bash
+docker compose -f infra/docker-compose.yml up --build
+```
+
+Verifique a API:
+
+```bash
+curl http://localhost:8080/health
+```
+
+Credenciais locais do admin:
+
+- E-mail: `admin@criciumadevs.local`
+- Senha: `admin123`
+
+Login local:
+
+```bash
+curl -X POST http://localhost:8080/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@criciumadevs.local","password":"admin123"}'
+```
+
+Listar devs:
+
+```bash
+curl http://localhost:8080/api/developers
+```
+
+Criar dev com token admin:
+
+```bash
+curl -X POST http://localhost:8080/api/developers \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"name":"Ada Lovelace","email":"ada@example.com","skills":["Go","Angular"],"available":true,"bio":"Dev da comunidade"}'
+```
+
+Atualizar dev:
+
+```bash
+curl -X PUT http://localhost:8080/api/developers/1 \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"name":"Ada Lovelace","email":"ada@example.com","skills":["Go","Angular","PostgreSQL"],"available":false,"bio":"Dev da comunidade"}'
+```
+
+Remover dev:
+
+```bash
+curl -X DELETE http://localhost:8080/api/developers/1 \
+  -H "Authorization: Bearer <token>"
+```
+
+Rodar testes localmente:
+
+```bash
+go test ./...
+```
 
 Rode a aplicação:
 
@@ -74,6 +155,66 @@ Compile o binário:
 ```bash
 make build
 ```
+
+---
+
+### Fluxo com OpenCode + OpenSpec
+
+Este projeto usa **OpenCode** como agente de desenvolvimento no terminal e **OpenSpec** para registrar intenção, decisões e tarefas antes da implementação.
+
+A ideia é simples: mudanças maiores devem começar com uma proposta revisável, não direto no código. Isso ajuda a comunidade a discutir o que será feito, por que será feito e quais tarefas precisam ser executadas.
+
+Instale o OpenCode:
+
+```bash
+curl -fsSL https://opencode.ai/install | bash
+```
+
+Ou, se preferir npm:
+
+```bash
+npm install -g opencode-ai
+```
+
+Instale o OpenSpec:
+
+```bash
+npm install -g @fission-ai/openspec@latest
+```
+
+Instale as dependências locais dos comandos do OpenCode:
+
+```bash
+cd .opencode
+npm install
+cd ..
+```
+
+Abra o OpenCode na raiz do projeto:
+
+```bash
+opencode
+```
+
+Comandos principais usados neste repositório:
+
+- `/opsx-explore`: explorar uma ideia, problema ou decisão sem alterar código.
+- `/opsx-propose <nome-da-mudanca>`: criar uma proposta OpenSpec com intenção, design e tarefas.
+- `/opsx-apply <nome-da-mudanca>`: implementar as tarefas de uma mudança já proposta.
+- `/opsx-sync <nome-da-mudanca>`: sincronizar specs da mudança com as specs principais.
+- `/opsx-archive <nome-da-mudanca>`: arquivar uma mudança concluída.
+
+Fluxo recomendado para contribuições maiores:
+
+1. Escolha uma issue no GitHub.
+2. Use `/opsx-explore` se a solução ainda estiver pouco clara.
+3. Use `/opsx-propose nome-da-mudanca` para criar a proposta.
+4. Discuta a proposta na issue ou no PR, se necessário.
+5. Use `/opsx-apply nome-da-mudanca` para implementar.
+6. Rode `make check` antes de abrir o PR.
+7. Depois da mudança revisada e concluída, use `/opsx-archive nome-da-mudanca`.
+
+Mudanças pequenas, como correções simples de texto, não precisam obrigatoriamente passar por OpenSpec. Use bom senso: se existe decisão de produto, contrato de API, banco de dados ou mudança de comportamento, prefira registrar a intenção antes.
 
 ---
 
