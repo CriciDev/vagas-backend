@@ -78,8 +78,8 @@ make setup-env
 
 Isso cria:
 
-- `/.env` para `make run`
-- `/infra/.env` para Docker Compose
+- `.env` para `make run`
+- `infra/.env` para Docker Compose
 
 Os arquivos reais não devem ser commitados.
 
