@@ -83,8 +83,6 @@ Isso cria:
 
 Os arquivos reais não devem ser commitados.
 
-A aplicação exige essas variáveis no ambiente; os valores de exemplo existem só nos arquivos `*.env.example`.
-
 Suba a API e o PostgreSQL:
 
 ```bash
