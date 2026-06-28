@@ -95,7 +95,7 @@ Para rodar sem Docker:
 make run
 ```
 
-`make run` carrega `/.env` apenas durante a execução, sem alterar o ambiente do terminal.
+`make run` carrega `.env` apenas durante a execução, sem alterar o ambiente do terminal.
 
 Verifique a API:
 
