@@ -70,11 +70,32 @@ Pré-requisitos:
 - Docker Compose
 - Node.js/npm, apenas se for usar OpenCode + OpenSpec no fluxo de contribuição
 
+Setup de variáveis de ambiente:
+
+```bash
+make setup-env
+```
+
+Isso cria:
+
+- `/.env` para `make run`
+- `/infra/.env` para Docker Compose
+
+Os arquivos reais não devem ser commitados.
+
 Suba a API e o PostgreSQL:
 
 ```bash
-docker compose -f infra/docker-compose.yml up --build
+docker compose --env-file infra/.env -f infra/docker-compose.yml up --build
 ```
+
+Para rodar sem Docker:
+
+```bash
+make run
+```
+
+`make run` carrega `/.env` apenas durante a execução, sem alterar o ambiente do terminal.
 
 Verifique a API:
 

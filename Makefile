@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := help
 
-.PHONY: help run run-go test test-verbose run-testes fmt vet build clean check
+.PHONY: help run run-go setup-env test test-verbose run-testes fmt vet build clean check
 
 APP_NAME ?= server
 MAIN_PACKAGE := ./cmd/server
@@ -9,6 +9,7 @@ BUILD_DIR ?= bin
 help: ## Mostra os comandos disponíveis
 	@printf "Uso:\n  make <alvo>\n\nAlvos:\n"
 	@printf "  run            Roda a aplicação\n"
+	@printf "  setup-env      Cria arquivos .env a partir dos exemplos\n"
 	@printf "  test           Roda os testes\n"
 	@printf "  test-verbose   Roda os testes com saída verbosa\n"
 	@printf "  fmt            Formata os pacotes Go\n"
@@ -18,7 +19,11 @@ help: ## Mostra os comandos disponíveis
 	@printf "  check          Roda fmt, vet, test e build\n"
 
 run: ## Roda a aplicação
-	go run $(MAIN_PACKAGE)
+	@if [ -f .env ]; then set -a; . ./.env; set +a; fi; go run $(MAIN_PACKAGE)
+
+setup-env: ## Cria arquivos .env a partir dos exemplos
+	@if [ ! -f .env ] && [ -f .env.example ]; then cp .env.example .env; fi
+	@if [ ! -f infra/.env ] && [ -f infra/.env.example ]; then cp infra/.env.example infra/.env; fi
 
 run-go: run ## Alias compatível com o Makefile antigo
 
