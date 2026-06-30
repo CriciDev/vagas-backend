@@ -3,13 +3,13 @@
 ### Requirement: Opportunity model
 The system SHALL define an `opportunity` contract for the MVP with required and optional fields.
 
-Required fields SHALL be `title`, `description`, `organizationName`, `type`, `workMode`, and at least one contact channel through `contactEmail` or `contactUrl`.
+Required fields SHALL be `title`, `description`, `organization_name`, `type`, `work_mode`, and at least one contact channel through `contact_email` or `contact_url`.
 
-Optional fields MAY include `organizationUrl`, `location`, `salaryRange`, `seniority`, `skills`, `expiresAt`, and `status`.
+Optional fields MAY include `organization_url`, `location`, `salary_range`, `seniority`, `skills`, `expires_at`, and `status`.
 
 The `type` field SHALL use one of `full_time`, `part_time`, `contract`, `freelance`, `volunteer`, `project`, or `mentorship`.
 
-The `workMode` field SHALL use one of `remote`, `hybrid`, or `on_site`.
+The `work_mode` field SHALL use one of `remote`, `hybrid`, or `on_site`.
 
 The `status` field SHALL use one of `draft`, `published`, `closed`, or `archived`, and SHALL default to `published` when omitted by an authorized create request.
 
@@ -18,11 +18,11 @@ The `status` field SHALL use one of `draft`, `published`, `closed`, or `archived
 - **THEN** the system accepts the payload as a valid opportunity
 
 #### Scenario: Required opportunity fields are missing
-- **WHEN** an authorized admin submits an opportunity without title, description, organizationName, type, workMode, or contact channel
+- **WHEN** an authorized admin submits an opportunity without title, description, organization_name, type, work_mode, or contact channel
 - **THEN** the system rejects the payload with a validation error response
 
 #### Scenario: Invalid opportunity enum is submitted
-- **WHEN** an authorized admin submits an opportunity with an unsupported type, workMode, or status value
+- **WHEN** an authorized admin submits an opportunity with an unsupported type, work_mode, or status value
 - **THEN** the system rejects the payload with a validation error response
 
 ### Requirement: Opportunity creation
@@ -43,7 +43,7 @@ The system SHALL allow an authorized admin to create an opportunity.
 ### Requirement: Opportunity listing
 The system SHALL allow any client to list published opportunities with their public fields.
 
-The listing MAY support simple filters for `type`, `workMode`, and `location`.
+The listing MAY support simple filters for `type`, `work_mode`, and `location`.
 
 #### Scenario: Public client lists opportunities
 - **WHEN** any client requests the opportunities collection
@@ -58,10 +58,14 @@ The listing MAY support simple filters for `type`, `workMode`, and `location`.
 - **THEN** the system excludes them from the public listing
 
 ### Requirement: Opportunity lookup
-The system SHALL allow any client to retrieve a published opportunity by identifier.
+The system SHALL allow any client to retrieve a published opportunity by identifier and SHALL allow an authenticated admin to retrieve an opportunity in any status.
 
 #### Scenario: Existing published opportunity is requested
 - **WHEN** any client requests a published opportunity by an existing identifier
+- **THEN** the system returns that opportunity
+
+#### Scenario: Admin requests unpublished opportunity
+- **WHEN** an authenticated admin requests a draft, closed, or archived opportunity by an existing identifier
 - **THEN** the system returns that opportunity
 
 #### Scenario: Missing opportunity is requested
