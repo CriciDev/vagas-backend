@@ -5,6 +5,8 @@ import (
 	"encoding/hex"
 	"fmt"
 	"regexp"
+	"sync/atomic"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -14,7 +16,10 @@ const (
 	ContextKey      = "request_id"
 )
 
-var validRequestID = regexp.MustCompile(`^[A-Za-z0-9._-]{1,128}$`)
+var (
+	validRequestID  = regexp.MustCompile(`^[A-Za-z0-9._-]{1,128}$`)
+	fallbackCounter atomic.Uint64
+)
 
 func RequestID() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
@@ -53,8 +58,8 @@ func AccessLogFormatter(param gin.LogFormatterParams) string {
 
 func generateRequestID() string {
 	buffer := make([]byte, 16)
-	if _, err := rand.Read(buffer); err != nil {
-		return "unknown"
+	if _, err := rand.Read(buffer); err == nil {
+		return hex.EncodeToString(buffer)
 	}
-	return hex.EncodeToString(buffer)
+	return fmt.Sprintf("fallback-%d-%d", time.Now().UnixNano(), fallbackCounter.Add(1))
 }
