@@ -10,6 +10,7 @@ import (
 	"github.com/CriciumaDevJobs/backend/internal/database"
 	"github.com/CriciumaDevJobs/backend/internal/devs"
 	"github.com/CriciumaDevJobs/backend/internal/health"
+	"github.com/CriciumaDevJobs/backend/internal/opportunities"
 	"github.com/gin-gonic/gin"
 )
 
@@ -46,6 +47,11 @@ func main() {
 	devService := devs.NewService(devRepo)
 	devHandler := devs.NewHandler(devService)
 	devHandler.RegisterRoutes(api, auth.Authenticate(authService), auth.RequireRole(auth.RoleAdmin))
+
+	opportunityRepo := opportunities.NewPostgresRepository(db)
+	opportunityService := opportunities.NewService(opportunityRepo)
+	opportunityHandler := opportunities.NewHandler(opportunityService)
+	opportunityHandler.RegisterRoutes(api, auth.OptionalAuthenticate(authService), auth.Authenticate(authService), auth.RequireRole(auth.RoleAdmin))
 
 	if err := router.Run(":" + cfg.HTTPPort); err != nil {
 		log.Fatalf("server failed: %v", err)

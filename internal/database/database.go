@@ -71,4 +71,28 @@ CREATE TABLE IF NOT EXISTS developers (
 	created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
 	updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+CREATE TABLE IF NOT EXISTS opportunities (
+	id BIGSERIAL PRIMARY KEY,
+	title TEXT NOT NULL,
+	description TEXT NOT NULL,
+	organization_name TEXT NOT NULL,
+	organization_url TEXT,
+	type TEXT NOT NULL,
+	work_mode TEXT NOT NULL,
+	location TEXT,
+	salary_range TEXT,
+	seniority TEXT,
+	skills TEXT[] NOT NULL DEFAULT '{}',
+	contact_email TEXT,
+	contact_url TEXT,
+	expires_at TIMESTAMPTZ,
+	status TEXT NOT NULL DEFAULT 'published',
+	created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+	updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+	CONSTRAINT opportunities_contact_channel_check CHECK (contact_email IS NOT NULL OR contact_url IS NOT NULL),
+	CONSTRAINT opportunities_type_check CHECK (type IN ('full_time', 'part_time', 'contract', 'freelance', 'volunteer', 'project', 'mentorship')),
+	CONSTRAINT opportunities_work_mode_check CHECK (work_mode IN ('remote', 'hybrid', 'on_site')),
+	CONSTRAINT opportunities_status_check CHECK (status IN ('draft', 'published', 'closed', 'archived'))
+);
 `

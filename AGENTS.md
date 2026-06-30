@@ -20,3 +20,4 @@
 ## Code Style
 - Não use comentários em blocos de código a menos que isso seja expressamente solicitado pelo usuário.
 - Agrupe declarações relacionadas de `var` e `type` usando blocos `var (...)` e `type (...)`, como em `internal/devs/devs.go`, para manter a leitura mais limpa.
+- Em structs Go, mantenha nomes de campos no padrão da linguagem (`PascalCase` para exportados e `camelCase` para não exportados) e use tags `json` em `snake_case`, especialmente para campos compostos como `organization_name`, `work_mode`, `created_at` e `updated_at`.
