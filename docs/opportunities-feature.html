@@ -234,7 +234,7 @@
         <ul>
           <li>Criação de oportunidades por admin.</li>
           <li>Listagem pública apenas de oportunidades publicadas.</li>
-          <li>Busca pública por id apenas quando o status é <code>published</code>.</li>
+          <li>Busca pública por id apenas quando o status é <code>published</code>; admin autenticado também consegue revisar rascunhos pelo id.</li>
           <li>Atualização e remoção protegidas por role <code>admin</code>.</li>
         </ul>
       </article>
@@ -266,9 +266,9 @@
       <article class="card">
         <h2>Modelo</h2>
         <h3>Obrigatórios</h3>
-        <p><code>title</code>, <code>description</code>, <code>organizationName</code>, <code>type</code>, <code>workMode</code> e pelo menos um canal de contato: <code>contactEmail</code> ou <code>contactUrl</code>.</p>
+        <p><code>title</code>, <code>description</code>, <code>organization_name</code>, <code>type</code>, <code>work_mode</code> e pelo menos um canal de contato: <code>contact_email</code> ou <code>contact_url</code>.</p>
         <h3 style="margin-top: 18px;">Opcionais</h3>
-        <p><code>organizationUrl</code>, <code>location</code>, <code>salaryRange</code>, <code>seniority</code>, <code>skills</code>, <code>expiresAt</code> e <code>status</code>.</p>
+        <p><code>organization_url</code>, <code>location</code>, <code>salary_range</code>, <code>seniority</code>, <code>skills</code>, <code>expires_at</code> e <code>status</code>.</p>
       </article>
 
       <article class="card">
@@ -293,19 +293,19 @@
 
       <article class="card wide">
         <h2>Exemplo de payload</h2>
-        <p>Quando <code>status</code> não é enviado, o backend assume <code>published</code>.</p>
+        <p>Na criação, quando <code>status</code> não é enviado, o backend assume <code>published</code>. Na atualização, a ausência de <code>status</code> preserva o status atual.</p>
         <pre><code>{
   "title": "Go Developer",
   "description": "Build community tools",
-  "organizationName": "Criciuma Devs",
-  "organizationUrl": "https://criciumadevs.local",
+  "organization_name": "Criciuma Devs",
+  "organization_url": "https://criciumadevs.local",
   "type": "full_time",
-  "workMode": "remote",
+  "work_mode": "remote",
   "location": "Criciuma",
-  "salaryRange": "R$ 8k - R$ 12k",
+  "salary_range": "R$ 8k - R$ 12k",
   "seniority": "senior",
   "skills": ["Go", "PostgreSQL"],
-  "contactEmail": "jobs@criciumadevs.local"
+  "contact_email": "jobs@criciumadevs.local"
 }</code></pre>
       </article>
 

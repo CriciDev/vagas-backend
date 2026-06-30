@@ -80,6 +80,56 @@ func TestAuthMiddlewareRejectsInvalidToken(t *testing.T) {
 	}
 }
 
+func TestOptionalAuthMiddlewareAllowsMissingToken(t *testing.T) {
+	service := newTestAuthService(t)
+	gin.SetMode(gin.TestMode)
+	router := gin.New()
+	router.GET("/public", OptionalAuthenticate(service), func(ctx *gin.Context) {
+		if _, ok := UserFromContext(ctx); ok {
+			t.Fatal("expected no authenticated user")
+		}
+		ctx.Status(http.StatusOK)
+	})
+
+	recorder := httptest.NewRecorder()
+	request := httptest.NewRequest(http.MethodGet, "/public", nil)
+	router.ServeHTTP(recorder, request)
+
+	if recorder.Code != http.StatusOK {
+		t.Fatalf("expected status %d, got %d", http.StatusOK, recorder.Code)
+	}
+}
+
+func TestOptionalAuthMiddlewareSetsValidUser(t *testing.T) {
+	service := newTestAuthService(t)
+	token, err := service.CreateToken(User{ID: 1, Email: "admin@test.local", Role: RoleAdmin})
+	if err != nil {
+		t.Fatalf("expected token, got %v", err)
+	}
+
+	gin.SetMode(gin.TestMode)
+	router := gin.New()
+	router.GET("/public", OptionalAuthenticate(service), func(ctx *gin.Context) {
+		user, ok := UserFromContext(ctx)
+		if !ok {
+			t.Fatal("expected authenticated user")
+		}
+		if user.Role != RoleAdmin {
+			t.Fatalf("expected role %q, got %q", RoleAdmin, user.Role)
+		}
+		ctx.Status(http.StatusOK)
+	})
+
+	recorder := httptest.NewRecorder()
+	request := httptest.NewRequest(http.MethodGet, "/public", nil)
+	request.Header.Set("Authorization", "Bearer "+token)
+	router.ServeHTTP(recorder, request)
+
+	if recorder.Code != http.StatusOK {
+		t.Fatalf("expected status %d, got %d", http.StatusOK, recorder.Code)
+	}
+}
+
 func TestRoleMiddlewareRejectsForbiddenRole(t *testing.T) {
 	service := newTestAuthService(t)
 	router := newProtectedRouter(service)

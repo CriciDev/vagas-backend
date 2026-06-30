@@ -14,6 +14,7 @@ type (
 	Repository interface {
 		Create(ctx context.Context, opportunity Opportunity) (Opportunity, error)
 		List(ctx context.Context, filters ListFilters) ([]Opportunity, error)
+		FindByID(ctx context.Context, id int64) (Opportunity, error)
 		FindPublishedByID(ctx context.Context, id int64) (Opportunity, error)
 		Update(ctx context.Context, opportunity Opportunity) (Opportunity, error)
 		Delete(ctx context.Context, id int64) error
@@ -91,13 +92,20 @@ func (repo *PostgresRepository) List(ctx context.Context, filters ListFilters) (
 	return opportunities, nil
 }
 
+func (repo *PostgresRepository) FindByID(ctx context.Context, id int64) (Opportunity, error) {
+	return repo.findByID(ctx, id, "id = $1")
+}
+
 func (repo *PostgresRepository) FindPublishedByID(ctx context.Context, id int64) (Opportunity, error) {
+	return repo.findByID(ctx, id, "id = $1 AND status = 'published'")
+}
+
+func (repo *PostgresRepository) findByID(ctx context.Context, id int64, condition string) (Opportunity, error) {
 	row := repo.db.QueryRowContext(ctx, `
 		SELECT id, title, description, organization_name, organization_url, type, work_mode,
 			location, salary_range, seniority, skills, contact_email, contact_url, expires_at, status, created_at, updated_at
 		FROM opportunities
-		WHERE id = $1 AND status = 'published'
-	`, id)
+		WHERE `+condition, id)
 
 	opportunity, err := scanOpportunity(row)
 	if errors.Is(err, sql.ErrNoRows) {

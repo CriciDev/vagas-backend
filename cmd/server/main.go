@@ -51,7 +51,7 @@ func main() {
 	opportunityRepo := opportunities.NewPostgresRepository(db)
 	opportunityService := opportunities.NewService(opportunityRepo)
 	opportunityHandler := opportunities.NewHandler(opportunityService)
-	opportunityHandler.RegisterRoutes(api, auth.Authenticate(authService), auth.RequireRole(auth.RoleAdmin))
+	opportunityHandler.RegisterRoutes(api, auth.OptionalAuthenticate(authService), auth.Authenticate(authService), auth.RequireRole(auth.RoleAdmin))
 
 	if err := router.Run(":" + cfg.HTTPPort); err != nil {
 		log.Fatalf("server failed: %v", err)

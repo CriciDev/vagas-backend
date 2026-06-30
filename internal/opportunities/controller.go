@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/CriciumaDevJobs/backend/internal/auth"
 	"github.com/gin-gonic/gin"
 )
 
@@ -18,9 +19,9 @@ func NewHandler(service *Service) *Handler {
 	return &Handler{service: service}
 }
 
-func (handler *Handler) RegisterRoutes(router *gin.RouterGroup, authMiddleware gin.HandlerFunc, adminMiddleware gin.HandlerFunc) {
+func (handler *Handler) RegisterRoutes(router *gin.RouterGroup, optionalAuthMiddleware gin.HandlerFunc, authMiddleware gin.HandlerFunc, adminMiddleware gin.HandlerFunc) {
 	router.GET("/opportunities", handler.List)
-	router.GET("/opportunities/:id", handler.FindByID)
+	router.GET("/opportunities/:id", optionalAuthMiddleware, handler.FindByID)
 
 	protected := router.Group("/opportunities", authMiddleware, adminMiddleware)
 	protected.POST("", handler.Create)
@@ -42,7 +43,7 @@ func (handler *Handler) Create(ctx *gin.Context) {
 func (handler *Handler) List(ctx *gin.Context) {
 	opportunities, err := handler.service.List(ctx.Request.Context(), ListFilters{
 		Type:     ctx.Query("type"),
-		WorkMode: ctx.Query("workMode"),
+		WorkMode: ctx.Query("work_mode"),
 		Location: ctx.Query("location"),
 	})
 	if errors.Is(err, ErrValidation) {
@@ -64,7 +65,12 @@ func (handler *Handler) FindByID(ctx *gin.Context) {
 		return
 	}
 
-	opportunity, err := handler.service.FindByID(ctx.Request.Context(), id)
+	includeUnpublished := false
+	if user, ok := auth.UserFromContext(ctx); ok && user.Role == auth.RoleAdmin {
+		includeUnpublished = true
+	}
+
+	opportunity, err := handler.service.FindByID(ctx.Request.Context(), id, includeUnpublished)
 	writeOpportunityResult(ctx, opportunity, err, http.StatusOK)
 }
 

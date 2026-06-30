@@ -18,7 +18,7 @@ func NewService(repo Repository) *Service {
 }
 
 func (service *Service) Create(ctx context.Context, request SaveOpportunityRequest) (Opportunity, error) {
-	opportunity, err := opportunityFromRequest(request)
+	opportunity, err := opportunityFromRequest(request, StatusPublished)
 	if err != nil {
 		return Opportunity{}, err
 	}
@@ -36,9 +36,12 @@ func (service *Service) List(ctx context.Context, filters ListFilters) ([]Opport
 	return service.repo.List(ctx, filters)
 }
 
-func (service *Service) FindByID(ctx context.Context, id int64) (Opportunity, error) {
+func (service *Service) FindByID(ctx context.Context, id int64, includeUnpublished bool) (Opportunity, error) {
 	if id <= 0 {
 		return Opportunity{}, ErrNotFound
+	}
+	if includeUnpublished {
+		return service.repo.FindByID(ctx, id)
 	}
 	return service.repo.FindPublishedByID(ctx, id)
 }
@@ -48,7 +51,12 @@ func (service *Service) Update(ctx context.Context, id int64, request SaveOpport
 		return Opportunity{}, ErrNotFound
 	}
 
-	opportunity, err := opportunityFromRequest(request)
+	existing, err := service.repo.FindByID(ctx, id)
+	if err != nil {
+		return Opportunity{}, err
+	}
+
+	opportunity, err := opportunityFromRequest(request, existing.Status)
 	if err != nil {
 		return Opportunity{}, err
 	}
@@ -64,7 +72,7 @@ func (service *Service) Delete(ctx context.Context, id int64) error {
 	return service.repo.Delete(ctx, id)
 }
 
-func opportunityFromRequest(request SaveOpportunityRequest) (Opportunity, error) {
+func opportunityFromRequest(request SaveOpportunityRequest, defaultStatus string) (Opportunity, error) {
 	title := strings.TrimSpace(request.Title)
 	description := strings.TrimSpace(request.Description)
 	organizationName := strings.TrimSpace(request.OrganizationName)
@@ -80,7 +88,7 @@ func opportunityFromRequest(request SaveOpportunityRequest) (Opportunity, error)
 	skills := normalizeSkills(request.Skills)
 
 	if status == "" {
-		status = StatusPublished
+		status = defaultStatus
 	}
 
 	if title == "" || description == "" || organizationName == "" || opportunityType == "" || workMode == "" {

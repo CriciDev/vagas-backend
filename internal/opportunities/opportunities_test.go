@@ -9,6 +9,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/CriciumaDevJobs/backend/internal/auth"
 	"github.com/gin-gonic/gin"
 )
 
@@ -50,6 +51,14 @@ func (repo *memoryOpportunityRepository) List(ctx context.Context, filters ListF
 	return opportunities, nil
 }
 
+func (repo *memoryOpportunityRepository) FindByID(ctx context.Context, id int64) (Opportunity, error) {
+	opportunity, ok := repo.items[id]
+	if !ok {
+		return Opportunity{}, ErrNotFound
+	}
+	return opportunity, nil
+}
+
 func (repo *memoryOpportunityRepository) FindPublishedByID(ctx context.Context, id int64) (Opportunity, error) {
 	opportunity, ok := repo.items[id]
 	if !ok || opportunity.Status != StatusPublished {
@@ -75,7 +84,7 @@ func (repo *memoryOpportunityRepository) Delete(ctx context.Context, id int64) e
 }
 
 func TestOpportunityCRUDRoutes(t *testing.T) {
-	router := newOpportunityRouter(newMemoryOpportunityRepository(), passMiddleware(), passMiddleware())
+	router := newOpportunityRouter(newMemoryOpportunityRepository(), passMiddleware(), passMiddleware(), passMiddleware())
 
 	created := requestJSON(t, router, http.MethodPost, "/opportunities", validOpportunityRequest())
 	if created.Code != http.StatusCreated {
@@ -91,6 +100,26 @@ func TestOpportunityCRUDRoutes(t *testing.T) {
 	}
 	if opportunity.Status != StatusPublished {
 		t.Fatalf("expected default status %q, got %q", StatusPublished, opportunity.Status)
+	}
+
+	var payload map[string]any
+	if err := json.Unmarshal(created.Body.Bytes(), &payload); err != nil {
+		t.Fatalf("expected opportunity JSON object, got %v", err)
+	}
+	if _, ok := payload["organization_name"]; !ok {
+		t.Fatal("expected organization_name response field")
+	}
+	if _, ok := payload["created_at"]; !ok {
+		t.Fatal("expected created_at response field")
+	}
+	if _, ok := payload["updated_at"]; !ok {
+		t.Fatal("expected updated_at response field")
+	}
+	if _, ok := payload["organizationName"]; ok {
+		t.Fatal("expected no organizationName response field")
+	}
+	if _, ok := payload["createdAt"]; ok {
+		t.Fatal("expected no createdAt response field")
 	}
 
 	listed := requestJSON(t, router, http.MethodGet, "/opportunities?type=full_time", nil)
@@ -123,7 +152,7 @@ func TestOpportunityCRUDRoutes(t *testing.T) {
 
 func TestOpportunityPublicReadsExcludeUnpublished(t *testing.T) {
 	repo := newMemoryOpportunityRepository()
-	router := newOpportunityRouter(repo, passMiddleware(), passMiddleware())
+	router := newOpportunityRouter(repo, passMiddleware(), passMiddleware(), passMiddleware())
 
 	published := validOpportunityRequest()
 	draft := validOpportunityRequest()
@@ -151,8 +180,61 @@ func TestOpportunityPublicReadsExcludeUnpublished(t *testing.T) {
 	}
 }
 
+func TestOpportunityAdminCanReadDraft(t *testing.T) {
+	repo := newMemoryOpportunityRepository()
+	router := newOpportunityRouter(repo, adminOptionalAuthMiddleware(t), passMiddleware(), passMiddleware())
+
+	draft := validOpportunityRequest()
+	draft.Status = StatusDraft
+
+	created := requestJSON(t, router, http.MethodPost, "/opportunities", draft)
+	if created.Code != http.StatusCreated {
+		t.Fatalf("expected create status %d, got %d", http.StatusCreated, created.Code)
+	}
+
+	found := requestJSON(t, router, http.MethodGet, "/opportunities/1", nil)
+	if found.Code != http.StatusOK {
+		t.Fatalf("expected admin draft lookup status %d, got %d", http.StatusOK, found.Code)
+	}
+
+	var opportunity Opportunity
+	if err := json.Unmarshal(found.Body.Bytes(), &opportunity); err != nil {
+		t.Fatalf("expected opportunity response, got %v", err)
+	}
+	if opportunity.Status != StatusDraft {
+		t.Fatalf("expected draft status, got %q", opportunity.Status)
+	}
+}
+
+func TestOpportunityUpdatePreservesDraftStatusWhenStatusOmitted(t *testing.T) {
+	repo := newMemoryOpportunityRepository()
+	router := newOpportunityRouter(repo, passMiddleware(), passMiddleware(), passMiddleware())
+
+	draft := validOpportunityRequest()
+	draft.Status = StatusDraft
+	created := requestJSON(t, router, http.MethodPost, "/opportunities", draft)
+	if created.Code != http.StatusCreated {
+		t.Fatalf("expected create status %d, got %d", http.StatusCreated, created.Code)
+	}
+
+	updateRequest := validOpportunityRequest()
+	updateRequest.Title = "Updated draft"
+	updated := requestJSON(t, router, http.MethodPut, "/opportunities/1", updateRequest)
+	if updated.Code != http.StatusOK {
+		t.Fatalf("expected update status %d, got %d", http.StatusOK, updated.Code)
+	}
+
+	var opportunity Opportunity
+	if err := json.Unmarshal(updated.Body.Bytes(), &opportunity); err != nil {
+		t.Fatalf("expected opportunity response, got %v", err)
+	}
+	if opportunity.Status != StatusDraft {
+		t.Fatalf("expected draft status after update without status, got %q", opportunity.Status)
+	}
+}
+
 func TestOpportunityValidationError(t *testing.T) {
-	router := newOpportunityRouter(newMemoryOpportunityRepository(), passMiddleware(), passMiddleware())
+	router := newOpportunityRouter(newMemoryOpportunityRepository(), passMiddleware(), passMiddleware(), passMiddleware())
 
 	request := validOpportunityRequest()
 	request.Type = "invalid"
@@ -164,7 +246,7 @@ func TestOpportunityValidationError(t *testing.T) {
 }
 
 func TestOpportunityWriteAuthorizationFailure(t *testing.T) {
-	router := newOpportunityRouter(newMemoryOpportunityRepository(), abortMiddleware(http.StatusUnauthorized), passMiddleware())
+	router := newOpportunityRouter(newMemoryOpportunityRepository(), passMiddleware(), abortMiddleware(http.StatusUnauthorized), passMiddleware())
 
 	recorder := requestJSON(t, router, http.MethodPost, "/opportunities", validOpportunityRequest())
 	if recorder.Code != http.StatusUnauthorized {
@@ -172,12 +254,12 @@ func TestOpportunityWriteAuthorizationFailure(t *testing.T) {
 	}
 }
 
-func newOpportunityRouter(repo Repository, authMiddleware gin.HandlerFunc, adminMiddleware gin.HandlerFunc) *gin.Engine {
+func newOpportunityRouter(repo Repository, optionalAuthMiddleware gin.HandlerFunc, authMiddleware gin.HandlerFunc, adminMiddleware gin.HandlerFunc) *gin.Engine {
 	gin.SetMode(gin.TestMode)
 	router := gin.New()
 	service := NewService(repo)
 	handler := NewHandler(service)
-	handler.RegisterRoutes(&router.RouterGroup, authMiddleware, adminMiddleware)
+	handler.RegisterRoutes(&router.RouterGroup, optionalAuthMiddleware, authMiddleware, adminMiddleware)
 	return router
 }
 
@@ -212,6 +294,22 @@ func requestJSON(t *testing.T, router *gin.Engine, method string, path string, p
 	request.Header.Set("Content-Type", "application/json")
 	router.ServeHTTP(recorder, request)
 	return recorder
+}
+
+func adminOptionalAuthMiddleware(t *testing.T) gin.HandlerFunc {
+	t.Helper()
+
+	service := auth.NewService(nil, "test-secret")
+	token, err := service.CreateToken(auth.User{ID: 1, Email: "admin@test.local", Role: auth.RoleAdmin})
+	if err != nil {
+		t.Fatalf("expected admin token, got %v", err)
+	}
+
+	middleware := auth.OptionalAuthenticate(service)
+	return func(ctx *gin.Context) {
+		ctx.Request.Header.Set("Authorization", "Bearer "+token)
+		middleware(ctx)
+	}
 }
 
 func passMiddleware() gin.HandlerFunc {

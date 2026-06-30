@@ -34,17 +34,17 @@ type (
 		ID               int64      `json:"id"`
 		Title            string     `json:"title"`
 		Description      string     `json:"description"`
-		OrganizationName string     `json:"organizationName"`
-		OrganizationURL  string     `json:"organizationUrl"`
+		OrganizationName string     `json:"organization_name"`
+		OrganizationURL  string     `json:"organization_url"`
 		Type             string     `json:"type"`
-		WorkMode         string     `json:"workMode"`
+		WorkMode         string     `json:"work_mode"`
 		Location         string     `json:"location"`
-		SalaryRange      string     `json:"salaryRange"`
+		SalaryRange      string     `json:"salary_range"`
 		Seniority        string     `json:"seniority"`
 		Skills           []string   `json:"skills"`
-		ContactEmail     string     `json:"contactEmail"`
-		ContactURL       string     `json:"contactUrl"`
-		ExpiresAt        *time.Time `json:"expiresAt,omitempty"`
+		ContactEmail     string     `json:"contact_email"`
+		ContactURL       string     `json:"contact_url"`
+		ExpiresAt        *time.Time `json:"expires_at,omitempty"`
 		Status           string     `json:"status"`
 		CreatedAt        time.Time  `json:"created_at"`
 		UpdatedAt        time.Time  `json:"updated_at"`
@@ -53,17 +53,17 @@ type (
 	SaveOpportunityRequest struct {
 		Title            string     `json:"title"`
 		Description      string     `json:"description"`
-		OrganizationName string     `json:"organizationName"`
-		OrganizationURL  string     `json:"organizationUrl"`
+		OrganizationName string     `json:"organization_name"`
+		OrganizationURL  string     `json:"organization_url"`
 		Type             string     `json:"type"`
-		WorkMode         string     `json:"workMode"`
+		WorkMode         string     `json:"work_mode"`
 		Location         string     `json:"location"`
-		SalaryRange      string     `json:"salaryRange"`
+		SalaryRange      string     `json:"salary_range"`
 		Seniority        string     `json:"seniority"`
 		Skills           []string   `json:"skills"`
-		ContactEmail     string     `json:"contactEmail"`
-		ContactURL       string     `json:"contactUrl"`
-		ExpiresAt        *time.Time `json:"expiresAt"`
+		ContactEmail     string     `json:"contact_email"`
+		ContactURL       string     `json:"contact_url"`
+		ExpiresAt        *time.Time `json:"expires_at"`
 		Status           string     `json:"status"`
 	}
 
