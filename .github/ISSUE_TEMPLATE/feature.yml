@@ -1,0 +1,49 @@
+name: "Feature"
+description: "Proponha uma nova funcionalidade ou melhoria."
+title: "[Feature] "
+labels:
+  - "feature"
+
+body:
+  - type: textarea
+    id: objetivo
+    attributes:
+      label: "Objetivo"
+      description: "Descreva qual problema esta funcionalidade resolve e qual é o objetivo."
+    validations:
+      required: true
+
+  - type: textarea
+    id: escopo_sugerido
+    attributes:
+      label: "Escopo sugerido"
+      description: "Descreva o que deve ser implementado."
+    validations:
+      required: true
+
+  - type: textarea
+    id: fora_de_escopo
+    attributes:
+      label: "Fora de escopo"
+      description: "Descreva o que não faz parte desta entrega."
+    validations:
+      required: false
+
+  - type: textarea
+    id: criterios_aceite
+    attributes:
+      label: "Critérios de aceite"
+      description: "Liste os critérios que precisam ser atendidos para considerar a issue concluída."
+      placeholder: |
+        - [ ] Critério 1
+        - [ ] Critério 2
+    validations:
+      required: true
+
+  - type: textarea
+    id: decisoes_abertas
+    attributes:
+      label: "Decisões abertas para debate"
+      description: "Pontos que ainda precisam ser discutidos antes ou durante a implementação."
+    validations:
+      required: false

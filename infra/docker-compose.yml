@@ -5,13 +5,13 @@ services:
       dockerfile: Dockerfile
     container_name: cdj_backend_api
     environment:
-      HTTP_PORT: "8080"
-      DATABASE_URL: postgres://postgres:postgres@postgres:5432/postgres?sslmode=disable
-      JWT_SECRET: local-dev-secret
-      ADMIN_EMAIL: admin@criciumadevs.local
-      ADMIN_PASSWORD: admin123
+      - HTTP_PORT
+      - DATABASE_URL
+      - JWT_SECRET
+      - ADMIN_EMAIL
+      - ADMIN_PASSWORD
     ports:
-      - "8080:8080"
+      - "${HTTP_PORT:-8080}:${HTTP_PORT:-8080}"
     depends_on:
       postgres:
         condition: service_healthy
@@ -21,16 +21,16 @@ services:
     image: postgres:15
     container_name: cdj_backend_postgres
     environment:
-      POSTGRES_DB: postgres
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      - POSTGRES_DB
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./postgres/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 5s
       timeout: 5s
       retries: 10
