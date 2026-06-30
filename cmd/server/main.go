@@ -10,6 +10,7 @@ import (
 	"github.com/CriciumaDevJobs/backend/internal/database"
 	"github.com/CriciumaDevJobs/backend/internal/devs"
 	"github.com/CriciumaDevJobs/backend/internal/health"
+	"github.com/CriciumaDevJobs/backend/internal/middleware"
 	"github.com/CriciumaDevJobs/backend/internal/opportunities"
 	"github.com/gin-gonic/gin"
 )
@@ -34,7 +35,8 @@ func main() {
 		log.Fatalf("admin seed failed: %v", err)
 	}
 
-	router := gin.Default()
+	router := gin.New()
+	router.Use(middleware.RequestID(), gin.LoggerWithFormatter(middleware.AccessLogFormatter), gin.Recovery())
 	health.RegisterRoutes(router)
 
 	api := router.Group("/api")
