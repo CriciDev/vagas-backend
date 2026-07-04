@@ -22,6 +22,9 @@ const (
 	StatusPublished = "published"
 	StatusClosed    = "closed"
 	StatusArchived  = "archived"
+
+	DefaultPageSize = 20
+	MaxPageSize     = 100
 )
 
 var (
@@ -71,5 +74,22 @@ type (
 		Type     string
 		WorkMode string
 		Location string
+	}
+
+	Pagination struct {
+		Page     int
+		PageSize int
+	}
+
+	PageMeta struct {
+		Page       int `json:"page"`
+		PageSize   int `json:"page_size"`
+		Total      int `json:"total"`
+		TotalPages int `json:"total_pages"`
+	}
+
+	OpportunityPage struct {
+		Data []Opportunity `json:"data"`
+		Meta PageMeta      `json:"meta"`
 	}
 )

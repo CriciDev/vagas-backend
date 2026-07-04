@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"sort"
 	"strings"
 	"testing"
 
@@ -31,8 +32,8 @@ func (repo *memoryOpportunityRepository) Create(ctx context.Context, opportunity
 	return opportunity, nil
 }
 
-func (repo *memoryOpportunityRepository) List(ctx context.Context, filters ListFilters) ([]Opportunity, error) {
-	opportunities := []Opportunity{}
+func (repo *memoryOpportunityRepository) List(ctx context.Context, filters ListFilters, pagination Pagination) ([]Opportunity, int, error) {
+	matched := []Opportunity{}
 	for _, opportunity := range repo.items {
 		if opportunity.Status != StatusPublished {
 			continue
@@ -46,9 +47,25 @@ func (repo *memoryOpportunityRepository) List(ctx context.Context, filters ListF
 		if filters.Location != "" && !strings.Contains(strings.ToLower(opportunity.Location), strings.ToLower(filters.Location)) {
 			continue
 		}
-		opportunities = append(opportunities, opportunity)
+		matched = append(matched, opportunity)
 	}
-	return opportunities, nil
+
+	sort.Slice(matched, func(i, j int) bool {
+		return matched[i].ID > matched[j].ID
+	})
+
+	total := len(matched)
+	start := pagination.Offset()
+	if start > total {
+		start = total
+	}
+	end := start + pagination.Limit()
+	if end > total {
+		end = total
+	}
+
+	page := append([]Opportunity{}, matched[start:end]...)
+	return page, total, nil
 }
 
 func (repo *memoryOpportunityRepository) FindByID(ctx context.Context, id int64) (Opportunity, error) {
@@ -166,12 +183,12 @@ func TestOpportunityPublicReadsExcludeUnpublished(t *testing.T) {
 		t.Fatalf("expected list status %d, got %d", http.StatusOK, listed.Code)
 	}
 
-	var opportunities []Opportunity
-	if err := json.Unmarshal(listed.Body.Bytes(), &opportunities); err != nil {
-		t.Fatalf("expected opportunities response, got %v", err)
+	page := decodeOpportunityPage(t, listed)
+	if len(page.Data) != 1 {
+		t.Fatalf("expected one published opportunity, got %d", len(page.Data))
 	}
-	if len(opportunities) != 1 {
-		t.Fatalf("expected one published opportunity, got %d", len(opportunities))
+	if page.Meta.Total != 1 {
+		t.Fatalf("expected meta total 1, got %d", page.Meta.Total)
 	}
 
 	unpublished := requestJSON(t, router, http.MethodGet, "/opportunities/2", nil)
@@ -252,6 +269,84 @@ func TestOpportunityWriteAuthorizationFailure(t *testing.T) {
 	if recorder.Code != http.StatusUnauthorized {
 		t.Fatalf("expected unauthorized status %d, got %d", http.StatusUnauthorized, recorder.Code)
 	}
+}
+
+func TestOpportunityListPaginationDefault(t *testing.T) {
+	router := newOpportunityRouter(newMemoryOpportunityRepository(), passMiddleware(), passMiddleware(), passMiddleware())
+
+	for i := 0; i < 3; i++ {
+		requestJSON(t, router, http.MethodPost, "/opportunities", validOpportunityRequest())
+	}
+
+	listed := requestJSON(t, router, http.MethodGet, "/opportunities", nil)
+	if listed.Code != http.StatusOK {
+		t.Fatalf("expected list status %d, got %d", http.StatusOK, listed.Code)
+	}
+
+	page := decodeOpportunityPage(t, listed)
+	if len(page.Data) != 3 {
+		t.Fatalf("expected 3 opportunities, got %d", len(page.Data))
+	}
+	if page.Meta.Page != 1 || page.Meta.PageSize != DefaultPageSize {
+		t.Fatalf("expected default page 1 and size %d, got page %d size %d", DefaultPageSize, page.Meta.Page, page.Meta.PageSize)
+	}
+	if page.Meta.Total != 3 || page.Meta.TotalPages != 1 {
+		t.Fatalf("expected total 3 and total_pages 1, got total %d total_pages %d", page.Meta.Total, page.Meta.TotalPages)
+	}
+}
+
+func TestOpportunityListPaginationCustom(t *testing.T) {
+	router := newOpportunityRouter(newMemoryOpportunityRepository(), passMiddleware(), passMiddleware(), passMiddleware())
+
+	for i := 0; i < 5; i++ {
+		requestJSON(t, router, http.MethodPost, "/opportunities", validOpportunityRequest())
+	}
+
+	listed := requestJSON(t, router, http.MethodGet, "/opportunities?page=2&page_size=2", nil)
+	page := decodeOpportunityPage(t, listed)
+
+	if len(page.Data) != 2 {
+		t.Fatalf("expected 2 opportunities on page 2, got %d", len(page.Data))
+	}
+	if page.Meta.Page != 2 || page.Meta.PageSize != 2 || page.Meta.Total != 5 || page.Meta.TotalPages != 3 {
+		t.Fatalf("unexpected meta: %+v", page.Meta)
+	}
+	if page.Data[0].ID != 3 || page.Data[1].ID != 2 {
+		t.Fatalf("expected ids [3 2] on page 2, got [%d %d]", page.Data[0].ID, page.Data[1].ID)
+	}
+}
+
+func TestOpportunityListPaginationClampsInvalidValues(t *testing.T) {
+	router := newOpportunityRouter(newMemoryOpportunityRepository(), passMiddleware(), passMiddleware(), passMiddleware())
+
+	for i := 0; i < 3; i++ {
+		requestJSON(t, router, http.MethodPost, "/opportunities", validOpportunityRequest())
+	}
+
+	oversized := requestJSON(t, router, http.MethodGet, "/opportunities?page=0&page_size=999", nil)
+	if oversized.Code != http.StatusOK {
+		t.Fatalf("expected status %d for clamped request, got %d", http.StatusOK, oversized.Code)
+	}
+	oversizedPage := decodeOpportunityPage(t, oversized)
+	if oversizedPage.Meta.Page != 1 || oversizedPage.Meta.PageSize != MaxPageSize {
+		t.Fatalf("expected clamped page 1 and size %d, got page %d size %d", MaxPageSize, oversizedPage.Meta.Page, oversizedPage.Meta.PageSize)
+	}
+
+	nonNumeric := requestJSON(t, router, http.MethodGet, "/opportunities?page=abc&page_size=-5", nil)
+	nonNumericPage := decodeOpportunityPage(t, nonNumeric)
+	if nonNumericPage.Meta.Page != 1 || nonNumericPage.Meta.PageSize != DefaultPageSize {
+		t.Fatalf("expected fallback page 1 and size %d, got page %d size %d", DefaultPageSize, nonNumericPage.Meta.Page, nonNumericPage.Meta.PageSize)
+	}
+}
+
+func decodeOpportunityPage(t *testing.T, recorder *httptest.ResponseRecorder) OpportunityPage {
+	t.Helper()
+
+	var page OpportunityPage
+	if err := json.Unmarshal(recorder.Body.Bytes(), &page); err != nil {
+		t.Fatalf("expected opportunity page response, got %v", err)
+	}
+	return page
 }
 
 func newOpportunityRouter(repo Repository, optionalAuthMiddleware gin.HandlerFunc, authMiddleware gin.HandlerFunc, adminMiddleware gin.HandlerFunc) *gin.Engine {
