@@ -17,3 +17,15 @@ auth:
 
 body:
   mode: none
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test("list developers returns 200", function() {
+          expect(res.status).to.equal(200);
+        });
+
+        test("list developers returns array", function() {
+          expect(res.body).to.be.an("array");
+        });

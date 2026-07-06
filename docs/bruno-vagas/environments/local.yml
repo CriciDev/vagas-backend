@@ -16,3 +16,7 @@ variables:
     value: ""
     enabled: true
     secret: true
+  - name: developerId
+    value: ""
+    enabled: true
+    secret: false

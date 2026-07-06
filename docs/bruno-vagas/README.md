@@ -11,15 +11,16 @@ Esta pasta contém a collection local da API para uso com Bruno.
 ## Variáveis
 
 - `baseUrl`: URL da API local, por padrão `http://localhost:8080`.
-- `adminEmail`: e-mail do admin local.
-- `adminPassword`: senha do admin local.
 - `token`: token JWT retornado pelo login.
+- `developerId`: id retornado na criação do developer.
 
 ## Uso
 
 1. Execute a API local.
 2. Rode o request `Login`.
-3. Copie o valor do campo `token` da resposta para a variável `token` do ambiente `local`.
+3. O request `Login` preenche automaticamente `token`.
 4. Rode o request `Create developer`.
+5. O request `Create developer` preenche automaticamente `developerId`.
+6. Rode o request `Get developer by id`.
 
 Os requests `List developers` e `Get developer by id` ficam disponíveis para validar leitura da API.

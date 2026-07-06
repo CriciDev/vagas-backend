@@ -17,3 +17,15 @@ auth:
 
 body:
   mode: none
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test("health returns 200", function() {
+          expect(res.status).to.equal(200);
+        });
+
+        test("health returns ok", function() {
+          expect(res.body.status).to.equal("ok");
+        });

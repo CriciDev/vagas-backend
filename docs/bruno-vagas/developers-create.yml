@@ -31,3 +31,24 @@ body:
       "available": true,
       "bio": "Dev da comunidade"
     }
+
+runtime:
+  actions:
+    - type: set-variable
+      phase: after-response
+      selector:
+        expression: res.body.id
+        method: jsonq
+      variable:
+        name: developerId
+        scope: runtime
+  scripts:
+    - type: tests
+      code: |-
+        test("create returns 201", function() {
+          expect(res.status).to.equal(201);
+        });
+
+        test("create returns developer id", function() {
+          expect(res.body.id).to.be.a("number").and.greaterThan(0);
+        });

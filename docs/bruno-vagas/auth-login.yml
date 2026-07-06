@@ -25,3 +25,24 @@ body:
       "email": "{{adminEmail}}",
       "password": "{{adminPassword}}"
     }
+
+runtime:
+  actions:
+    - type: set-variable
+      phase: after-response
+      selector:
+        expression: res.body.token
+        method: jsonq
+      variable:
+        name: token
+        scope: runtime
+  scripts:
+    - type: tests
+      code: |-
+        test("login returns 200", function() {
+          expect(res.status).to.equal(200);
+        });
+
+        test("login returns token", function() {
+          expect(res.body.token).to.be.a("string").and.not.empty;
+        });
