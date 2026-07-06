@@ -1,0 +1,33 @@
+info:
+  name: Create developer
+  type: http
+  seq: 4
+
+http:
+  method: post
+  url: "{{baseUrl}}/api/developers"
+
+headers:
+  - name: Accept
+    value: application/json
+    enabled: true
+  - name: Content-Type
+    value: application/json
+    enabled: true
+  - name: Authorization
+    value: Bearer {{token}}
+    enabled: true
+
+auth:
+  mode: none
+
+body:
+  mode: json
+  json: |-
+    {
+      "name": "Ada Lovelace",
+      "email": "ada@example.com",
+      "skills": ["Go", "Angular"],
+      "available": true,
+      "bio": "Dev da comunidade"
+    }

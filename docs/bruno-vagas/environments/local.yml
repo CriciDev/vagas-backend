@@ -12,3 +12,7 @@ variables:
     value: admin123
     enabled: true
     secret: false
+  - name: token
+    value: ""
+    enabled: true
+    secret: true
