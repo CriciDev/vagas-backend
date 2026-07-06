@@ -1,0 +1,19 @@
+info:
+  name: Get developer by id
+  type: http
+  seq: 4
+
+http:
+  method: get
+  url: "{{baseUrl}}/api/developers/1"
+
+headers:
+  - name: Accept
+    value: application/json
+    enabled: true
+
+auth:
+  mode: none
+
+body:
+  mode: none

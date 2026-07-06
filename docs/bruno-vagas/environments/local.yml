@@ -1,0 +1,14 @@
+name: local
+variables:
+  - name: baseUrl
+    value: http://localhost:8080
+    enabled: true
+    secret: false
+  - name: adminEmail
+    value: admin@criciumadevs.local
+    enabled: true
+    secret: false
+  - name: adminPassword
+    value: admin123
+    enabled: true
+    secret: false

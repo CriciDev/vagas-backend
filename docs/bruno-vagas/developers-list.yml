@@ -1,0 +1,19 @@
+info:
+  name: List developers
+  type: http
+  seq: 3
+
+http:
+  method: get
+  url: "{{baseUrl}}/api/developers"
+
+headers:
+  - name: Accept
+    value: application/json
+    enabled: true
+
+auth:
+  mode: none
+
+body:
+  mode: none

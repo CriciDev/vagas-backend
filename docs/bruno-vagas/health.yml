@@ -1,0 +1,19 @@
+info:
+  name: Health
+  type: http
+  seq: 1
+
+http:
+  method: get
+  url: "{{baseUrl}}/health"
+
+headers:
+  - name: Accept
+    value: application/json
+    enabled: true
+
+auth:
+  mode: none
+
+body:
+  mode: none
