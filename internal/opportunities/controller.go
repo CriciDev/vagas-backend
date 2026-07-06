@@ -41,8 +41,14 @@ func (handler *Handler) Create(ctx *gin.Context) {
 }
 
 func (handler *Handler) List(ctx *gin.Context) {
-	page, _ := strconv.Atoi(ctx.Query("page"))
-	pageSize, _ := strconv.Atoi(ctx.Query("page_size"))
+	page, err := strconv.Atoi(ctx.Query("page"))
+	if err != nil {
+		page = 0
+	}
+	pageSize, err := strconv.Atoi(ctx.Query("page_size"))
+	if err != nil {
+		pageSize = 0
+	}
 
 	filters := ListFilters{
 		Type:     ctx.Query("type"),

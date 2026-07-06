@@ -26,6 +26,7 @@ func (service *Service) Create(ctx context.Context, request SaveOpportunityReque
 }
 
 func (service *Service) List(ctx context.Context, filters ListFilters, pagination Pagination) (OpportunityPage, error) {
+	pagination = NewPagination(pagination.Page, pagination.PageSize)
 	filters = normalizeFilters(filters)
 	if filters.Type != "" && !validOpportunityType(filters.Type) {
 		return OpportunityPage{}, ErrValidation

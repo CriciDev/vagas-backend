@@ -337,6 +337,18 @@ func TestOpportunityListPaginationClampsInvalidValues(t *testing.T) {
 	if nonNumericPage.Meta.Page != 1 || nonNumericPage.Meta.PageSize != DefaultPageSize {
 		t.Fatalf("expected fallback page 1 and size %d, got page %d size %d", DefaultPageSize, nonNumericPage.Meta.Page, nonNumericPage.Meta.PageSize)
 	}
+
+	outOfRange := requestJSON(t, router, http.MethodGet, "/opportunities?page=99999999999999999999&page_size=99999999999999999999", nil)
+	if outOfRange.Code != http.StatusOK {
+		t.Fatalf("expected status %d for out-of-range values, got %d", http.StatusOK, outOfRange.Code)
+	}
+	outOfRangePage := decodeOpportunityPage(t, outOfRange)
+	if outOfRangePage.Meta.Page != 1 || outOfRangePage.Meta.PageSize != DefaultPageSize {
+		t.Fatalf("expected clamped page 1 and default size for out-of-range values, got page %d size %d", outOfRangePage.Meta.Page, outOfRangePage.Meta.PageSize)
+	}
+	if outOfRangePage.Meta.Total != 3 {
+		t.Fatalf("expected total 3, got %d", outOfRangePage.Meta.Total)
+	}
 }
 
 func decodeOpportunityPage(t *testing.T, recorder *httptest.ResponseRecorder) OpportunityPage {

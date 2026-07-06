@@ -3,7 +3,7 @@
 ### Requirement: Opportunity listing
 The system SHALL allow any client to list published opportunities with their public fields.
 
-The listing MAY support simple filters for `type`, `workMode`, and `location`.
+The listing MAY support simple filters for `type`, `work_mode`, and `location`.
 
 The system SHALL paginate the listing using `page` and `page_size` query parameters, defaulting to page `1` and page size `20`, with a maximum page size of `100`.
 
