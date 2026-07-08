@@ -35,7 +35,7 @@ test-verbose: ## Roda os testes com saída verbosa
 	go test -v ./...
 
 test-bruno: ## Roda a coleção Bruno local
-	cd docs/bruno-vagas && bru run --env-file environments/local.json
+	cd docs/bruno-vagas && bru run --env-file environments/local.yml
 
 run-testes: test-verbose ## Alias compatível com o Makefile antigo
 
