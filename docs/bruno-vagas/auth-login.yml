@@ -6,25 +6,23 @@ info:
 http:
   method: post
   url: "{{baseUrl}}/api/auth/login"
-
-headers:
-  - name: Accept
-    value: application/json
-    enabled: true
-  - name: Content-Type
-    value: application/json
-    enabled: true
+  headers:
+    - name: Accept
+      value: application/json
+      enabled: true
+    - name: Content-Type
+      value: application/json
+      enabled: true
+  body:
+    type: json
+    data: |-
+      {
+        "email": "{{adminEmail}}",
+        "password": "{{adminPassword}}"
+      }
 
 auth:
   mode: none
-
-body:
-  mode: json
-  json: |-
-    {
-      "email": "{{adminEmail}}",
-      "password": "{{adminPassword}}"
-    }
 
 runtime:
   actions:

@@ -6,31 +6,29 @@ info:
 http:
   method: post
   url: "{{baseUrl}}/api/developers"
-
-headers:
-  - name: Accept
-    value: application/json
-    enabled: true
-  - name: Content-Type
-    value: application/json
-    enabled: true
-  - name: Authorization
-    value: Bearer {{token}}
-    enabled: true
+  headers:
+    - name: Accept
+      value: application/json
+      enabled: true
+    - name: Content-Type
+      value: application/json
+      enabled: true
+    - name: Authorization
+      value: Bearer {{token}}
+      enabled: true
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Ada Lovelace",
+        "email": "ada@example.com",
+        "skills": ["Go", "Angular"],
+        "available": true,
+        "bio": "Dev da comunidade"
+      }
 
 auth:
   mode: none
-
-body:
-  mode: json
-  json: |-
-    {
-      "name": "Ada Lovelace",
-      "email": "ada@example.com",
-      "skills": ["Go", "Angular"],
-      "available": true,
-      "bio": "Dev da comunidade"
-    }
 
 runtime:
   actions:
