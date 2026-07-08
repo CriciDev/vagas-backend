@@ -21,7 +21,7 @@ http:
     data: |-
       {
         "name": "Ada Lovelace",
-        "email": "ada@example.com",
+        "email": "{{developerEmail}}",
         "skills": ["Go", "Angular"],
         "available": true,
         "bio": "Dev da comunidade"
@@ -31,16 +31,10 @@ auth:
   mode: none
 
 runtime:
-  actions:
-    - type: set-variable
-      phase: after-response
-      selector:
-        expression: res.body.id
-        method: jsonq
-      variable:
-        name: developerId
-        scope: runtime
   scripts:
+    - type: before-request
+      code: |-
+        bru.setVar("developerEmail", `ada-${Date.now()}@example.com`);
     - type: tests
       code: |-
         test("create returns 201", function() {
@@ -50,3 +44,12 @@ runtime:
         test("create returns developer id", function() {
           expect(res.body.id).to.be.a("number").and.greaterThan(0);
         });
+  actions:
+    - type: set-variable
+      phase: after-response
+      selector:
+        expression: res.body.id
+        method: jsonq
+      variable:
+        name: developerId
+        scope: runtime
