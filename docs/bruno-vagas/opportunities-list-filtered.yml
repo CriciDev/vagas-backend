@@ -1,0 +1,32 @@
+info:
+  name: List opportunities with filters
+  type: http
+  seq: 9
+
+http:
+  method: get
+  url: "{{baseUrl}}/api/opportunities?work_mode=remote&location=cric"
+
+headers:
+  - name: Accept
+    value: application/json
+    enabled: true
+
+auth:
+  mode: none
+
+body:
+  mode: none
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test("filtered opportunities returns 200", function() {
+          expect(res.status).to.equal(200);
+        });
+
+        test("filtered opportunities returns paginated data", function() {
+          expect(res.body.data).to.be.an("array");
+          expect(res.body.meta).to.have.property("total");
+        });

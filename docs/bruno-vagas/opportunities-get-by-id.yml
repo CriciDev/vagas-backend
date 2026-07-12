@@ -1,0 +1,31 @@
+info:
+  name: Get opportunity by id
+  type: http
+  seq: 11
+
+http:
+  method: get
+  url: "{{baseUrl}}/api/opportunities/{{opportunityId}}"
+
+headers:
+  - name: Accept
+    value: application/json
+    enabled: true
+
+auth:
+  mode: none
+
+body:
+  mode: none
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test("get opportunity returns 200", function() {
+          expect(res.status).to.equal(200);
+        });
+
+        test("get opportunity matches created opportunity", function() {
+          expect(res.body.id).to.equal(Number(bru.getVar("opportunityId")));
+        });

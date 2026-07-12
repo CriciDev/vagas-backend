@@ -20,3 +20,7 @@ variables:
     value: ""
     enabled: true
     secret: false
+  - name: opportunityId
+    value: ""
+    enabled: true
+    secret: false

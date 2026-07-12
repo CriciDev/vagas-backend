@@ -1,0 +1,27 @@
+info:
+  name: List opportunities with invalid filter
+  type: http
+  seq: 14
+
+http:
+  method: get
+  url: "{{baseUrl}}/api/opportunities?type=invalid"
+
+headers:
+  - name: Accept
+    value: application/json
+    enabled: true
+
+auth:
+  mode: none
+
+body:
+  mode: none
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test("invalid opportunity filter returns 400", function() {
+          expect(res.status).to.equal(400);
+        });

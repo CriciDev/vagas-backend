@@ -1,0 +1,49 @@
+info:
+  name: Update opportunity
+  type: http
+  seq: 12
+
+http:
+  method: put
+  url: "{{baseUrl}}/api/opportunities/{{opportunityId}}"
+  headers:
+    - name: Accept
+      value: application/json
+      enabled: true
+    - name: Content-Type
+      value: application/json
+      enabled: true
+    - name: Authorization
+      value: Bearer {{token}}
+      enabled: true
+  body:
+    type: json
+    data: |-
+      {
+        "title": "Senior Go Developer",
+        "description": "Build and maintain community tools",
+        "organization_name": "Criciuma Devs",
+        "organization_url": "https://criciumadevs.local",
+        "type": "full_time",
+        "work_mode": "remote",
+        "location": "Criciuma",
+        "salary_range": "R$ 10k - R$ 14k",
+        "seniority": "senior",
+        "skills": ["Go", "PostgreSQL", "Docker"],
+        "contact_email": "jobs@criciumadevs.local"
+      }
+
+auth:
+  mode: none
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test("update opportunity returns 200", function() {
+          expect(res.status).to.equal(200);
+        });
+
+        test("update opportunity keeps id", function() {
+          expect(res.body.id).to.equal(Number(bru.getVar("opportunityId")));
+        });
