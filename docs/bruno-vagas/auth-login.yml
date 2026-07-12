@@ -21,9 +21,6 @@ http:
         "password": "{{adminPassword}}"
       }
 
-auth:
-  mode: none
-
 runtime:
   actions:
     - type: set-variable

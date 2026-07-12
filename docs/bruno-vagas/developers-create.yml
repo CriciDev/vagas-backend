@@ -27,9 +27,6 @@ http:
         "bio": "Dev da comunidade"
       }
 
-auth:
-  mode: none
-
 runtime:
   scripts:
     - type: before-request

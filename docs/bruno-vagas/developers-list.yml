@@ -6,17 +6,12 @@ info:
 http:
   method: get
   url: "{{baseUrl}}/api/developers"
-
-headers:
-  - name: Accept
-    value: application/json
-    enabled: true
-
-auth:
-  mode: none
-
-body:
-  mode: none
+  headers:
+    - name: Accept
+      value: application/json
+      enabled: true
+  body:
+    mode: none
 
 runtime:
   scripts:

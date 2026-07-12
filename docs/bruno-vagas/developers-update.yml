@@ -27,9 +27,6 @@ http:
         "bio": "Updated developer profile"
       }
 
-auth:
-  mode: none
-
 runtime:
   scripts:
     - type: tests

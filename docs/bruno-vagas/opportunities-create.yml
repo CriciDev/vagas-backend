@@ -33,9 +33,6 @@ http:
         "contact_email": "jobs@criciumadevs.local"
       }
 
-auth:
-  mode: none
-
 runtime:
   scripts:
     - type: tests

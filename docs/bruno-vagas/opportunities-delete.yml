@@ -13,12 +13,8 @@ http:
     - name: Authorization
       value: Bearer {{token}}
       enabled: true
-
-auth:
-  mode: none
-
-body:
-  mode: none
+  body:
+    mode: none
 
 runtime:
   scripts:
