@@ -2,6 +2,26 @@
 
 Esta pasta contém a collection local da API para uso com Bruno.
 
+## Pré-requisitos
+
+- Node.js e npm instalados.
+- Bruno CLI 3.0.0 ou superior.
+- Instale o Bruno CLI com:
+
+  ```bash
+  npm install -g @usebruno/cli
+  ```
+
+- Confira a versão instalada:
+
+  ```bash
+  bru --version
+  ```
+
+A collection usa o formato OpenCollection em YAML, suportado pelo Bruno a partir da versão 3.0.0.
+
+Para usar a interface gráfica, [baixe o Bruno Desktop](https://www.usebruno.com/downloads).
+
 ## Importar
 
 1. Abra o Bruno.
