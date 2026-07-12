@@ -1,0 +1,25 @@
+info:
+  name: Delete opportunity
+  type: http
+  seq: 13
+
+http:
+  method: delete
+  url: "{{baseUrl}}/api/opportunities/{{opportunityId}}"
+  headers:
+    - name: Accept
+      value: application/json
+      enabled: true
+    - name: Authorization
+      value: Bearer {{token}}
+      enabled: true
+  body:
+    mode: none
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test("delete opportunity returns 204", function() {
+          expect(res.status).to.equal(204);
+        });

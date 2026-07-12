@@ -103,6 +103,10 @@ Verifique a API:
 curl http://localhost:8080/health
 ```
 
+Collection Bruno local:
+
+- Consulte [docs/bruno-vagas/README.md](docs/bruno-vagas/README.md) para importar e usar a collection versionada no repositório.
+
 Credenciais locais do admin:
 
 - E-mail: `admin@criciumadevs.local`

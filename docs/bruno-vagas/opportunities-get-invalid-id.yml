@@ -1,0 +1,22 @@
+info:
+  name: Get opportunity with invalid id
+  type: http
+  seq: 15
+
+http:
+  method: get
+  url: "{{baseUrl}}/api/opportunities/not-an-id"
+  headers:
+    - name: Accept
+      value: application/json
+      enabled: true
+  body:
+    mode: none
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test("invalid opportunity id returns 404", function() {
+          expect(res.status).to.equal(404);
+        });

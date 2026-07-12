@@ -1,0 +1,26 @@
+info:
+  name: Get developer by id
+  type: http
+  seq: 5
+
+http:
+  method: get
+  url: "{{baseUrl}}/api/developers/{{developerId}}"
+  headers:
+    - name: Accept
+      value: application/json
+      enabled: true
+  body:
+    mode: none
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test("get by id returns 200", function() {
+          expect(res.status).to.equal(200);
+        });
+
+        test("get by id matches created developer", function() {
+          expect(res.body.id).to.equal(Number(bru.getVar("developerId")));
+        });

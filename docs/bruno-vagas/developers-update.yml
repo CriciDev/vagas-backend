@@ -1,0 +1,40 @@
+info:
+  name: Update developer
+  type: http
+  seq: 6
+
+http:
+  method: put
+  url: "{{baseUrl}}/api/developers/{{developerId}}"
+  headers:
+    - name: Accept
+      value: application/json
+      enabled: true
+    - name: Content-Type
+      value: application/json
+      enabled: true
+    - name: Authorization
+      value: Bearer {{token}}
+      enabled: true
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Ada Lovelace",
+        "email": "{{developerEmail}}",
+        "skills": ["Go", "Angular", "PostgreSQL"],
+        "available": false,
+        "bio": "Updated developer profile"
+      }
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test("update returns 200", function() {
+          expect(res.status).to.equal(200);
+        });
+
+        test("update keeps developer id", function() {
+          expect(res.body.id).to.equal(Number(bru.getVar("developerId")));
+        });

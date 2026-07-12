@@ -1,0 +1,25 @@
+info:
+  name: Delete developer
+  type: http
+  seq: 7
+
+http:
+  method: delete
+  url: "{{baseUrl}}/api/developers/{{developerId}}"
+  headers:
+    - name: Accept
+      value: application/json
+      enabled: true
+    - name: Authorization
+      value: Bearer {{token}}
+      enabled: true
+  body:
+    mode: none
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test("delete returns 204", function() {
+          expect(res.status).to.equal(204);
+        });

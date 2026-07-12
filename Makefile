@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := help
 
-.PHONY: help run run-go setup-env test test-verbose run-testes fmt vet build clean check
+.PHONY: help run run-go setup-env test test-verbose test-bruno run-testes fmt vet build clean check
 
 APP_NAME ?= server
 MAIN_PACKAGE := ./cmd/server
@@ -12,6 +12,7 @@ help: ## Mostra os comandos disponíveis
 	@printf "  setup-env      Cria arquivos .env a partir dos exemplos\n"
 	@printf "  test           Roda os testes\n"
 	@printf "  test-verbose   Roda os testes com saída verbosa\n"
+	@printf "  test-bruno     Roda a coleção Bruno local\n"
 	@printf "  fmt            Formata os pacotes Go\n"
 	@printf "  vet            Roda go vet\n"
 	@printf "  build          Compila o binário em $(BUILD_DIR)/$(APP_NAME)\n"
@@ -32,6 +33,9 @@ test: ## Roda os testes
 
 test-verbose: ## Roda os testes com saída verbosa
 	go test -v ./...
+
+test-bruno: ## Roda a coleção Bruno local
+	cd docs/bruno-vagas && bru run --env local
 
 run-testes: test-verbose ## Alias compatível com o Makefile antigo
 

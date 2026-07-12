@@ -1,0 +1,28 @@
+info:
+  name: List opportunities
+  type: http
+  seq: 8
+
+http:
+  method: get
+  url: "{{baseUrl}}/api/opportunities"
+  headers:
+    - name: Accept
+      value: application/json
+      enabled: true
+  body:
+    mode: none
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test("list opportunities returns 200", function() {
+          expect(res.status).to.equal(200);
+        });
+
+        test("list opportunities returns paginated data", function() {
+          expect(res.body.data).to.be.an("array");
+          expect(res.body.meta.page).to.be.a("number");
+          expect(res.body.meta.page_size).to.be.a("number");
+        });

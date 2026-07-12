@@ -1,0 +1,26 @@
+info:
+  name: List developers
+  type: http
+  seq: 3
+
+http:
+  method: get
+  url: "{{baseUrl}}/api/developers"
+  headers:
+    - name: Accept
+      value: application/json
+      enabled: true
+  body:
+    mode: none
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test("list developers returns 200", function() {
+          expect(res.status).to.equal(200);
+        });
+
+        test("list developers returns array", function() {
+          expect(res.body).to.be.an("array");
+        });
