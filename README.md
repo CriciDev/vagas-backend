@@ -78,8 +78,8 @@ make setup-env
 
 Isso cria:
 
-- `/.env` para `make run`
-- `/infra/.env` para Docker Compose
+- `.env` para `make run`
+- `infra/.env` para Docker Compose
 
 Os arquivos reais não devem ser commitados.
 
@@ -95,7 +95,7 @@ Para rodar sem Docker:
 make run
 ```
 
-`make run` carrega `/.env` apenas durante a execução, sem alterar o ambiente do terminal.
+`make run` carrega `.env` apenas durante a execução, sem alterar o ambiente do terminal.
 
 Verifique a API:
 

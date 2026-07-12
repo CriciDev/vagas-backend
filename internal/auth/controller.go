@@ -62,20 +62,51 @@ func Authenticate(service *Service) gin.HandlerFunc {
 	}
 }
 
-func RequireRole(role string) gin.HandlerFunc {
+func OptionalAuthenticate(service *Service) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		value, exists := ctx.Get(userContextKey)
-		if !exists {
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "missing authenticated user"})
+		header := ctx.GetHeader("Authorization")
+		if header == "" {
 			return
 		}
 
-		user, ok := value.(AuthenticatedUser)
-		if !ok || user.Role != role {
+		token, ok := bearerToken(header)
+		if !ok {
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "missing bearer token"})
+			return
+		}
+
+		user, err := service.ParseToken(token)
+		if err != nil {
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid bearer token"})
+			return
+		}
+
+		ctx.Set(userContextKey, user)
+	}
+}
+
+func RequireRole(role string) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		user, ok := UserFromContext(ctx)
+		if !ok {
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "missing authenticated user"})
+			return
+		}
+		if user.Role != role {
 			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "forbidden"})
 			return
 		}
 
 		ctx.Next()
 	}
+}
+
+func UserFromContext(ctx *gin.Context) (AuthenticatedUser, bool) {
+	value, exists := ctx.Get(userContextKey)
+	if !exists {
+		return AuthenticatedUser{}, false
+	}
+
+	user, ok := value.(AuthenticatedUser)
+	return user, ok
 }

@@ -1,15 +1,17 @@
-## ADDED Requirements
+## Purpose
 
+Define the opportunity management behavior for publishing, retrieving, and administering MVP opportunities.
+## Requirements
 ### Requirement: Opportunity model
 The system SHALL define an `opportunity` contract for the MVP with required and optional fields.
 
-Required fields SHALL be `title`, `description`, `organizationName`, `type`, `workMode`, and at least one contact channel through `contactEmail` or `contactUrl`.
+Required fields SHALL be `title`, `description`, `organization_name`, `type`, `work_mode`, and at least one contact channel through `contact_email` or `contact_url`.
 
-Optional fields MAY include `organizationUrl`, `location`, `salaryRange`, `seniority`, `skills`, `expiresAt`, and `status`.
+Optional fields MAY include `organization_url`, `location`, `salary_range`, `seniority`, `skills`, `expires_at`, and `status`.
 
 The `type` field SHALL use one of `full_time`, `part_time`, `contract`, `freelance`, `volunteer`, `project`, or `mentorship`.
 
-The `workMode` field SHALL use one of `remote`, `hybrid`, or `on_site`.
+The `work_mode` field SHALL use one of `remote`, `hybrid`, or `on_site`.
 
 The `status` field SHALL use one of `draft`, `published`, `closed`, or `archived`, and SHALL default to `published` when omitted by an authorized create request.
 
@@ -18,11 +20,11 @@ The `status` field SHALL use one of `draft`, `published`, `closed`, or `archived
 - **THEN** the system accepts the payload as a valid opportunity
 
 #### Scenario: Required opportunity fields are missing
-- **WHEN** an authorized admin submits an opportunity without title, description, organizationName, type, workMode, or contact channel
+- **WHEN** an authorized admin submits an opportunity without title, description, organization_name, type, work_mode, or contact channel
 - **THEN** the system rejects the payload with a validation error response
 
 #### Scenario: Invalid opportunity enum is submitted
-- **WHEN** an authorized admin submits an opportunity with an unsupported type, workMode, or status value
+- **WHEN** an authorized admin submits an opportunity with an unsupported type, work_mode, or status value
 - **THEN** the system rejects the payload with a validation error response
 
 ### Requirement: Opportunity creation
@@ -43,7 +45,13 @@ The system SHALL allow an authorized admin to create an opportunity.
 ### Requirement: Opportunity listing
 The system SHALL allow any client to list published opportunities with their public fields.
 
-The listing MAY support simple filters for `type`, `workMode`, and `location`.
+The listing MAY support simple filters for `type`, `work_mode`, and `location`.
+
+The system SHALL paginate the listing using `page` and `page_size` query parameters, defaulting to page `1` and page size `20`, with a maximum page size of `100`.
+
+The system SHALL clamp invalid pagination values to the valid range instead of returning an error, so that `page` below `1` becomes `1`, `page_size` below `1` becomes the default, `page_size` above the maximum becomes the maximum, and non-numeric values fall back to the defaults.
+
+The listing response SHALL be an object with a `data` array of opportunities and a `meta` object containing `page`, `page_size`, `total`, and `total_pages`.
 
 #### Scenario: Public client lists opportunities
 - **WHEN** any client requests the opportunities collection
@@ -57,11 +65,27 @@ The listing MAY support simple filters for `type`, `workMode`, and `location`.
 - **WHEN** draft, closed, or archived opportunities exist
 - **THEN** the system excludes them from the public listing
 
+#### Scenario: Public client requests a specific page
+- **WHEN** any client requests the opportunities collection with `page` and `page_size`
+- **THEN** the system returns only that page of published opportunities and a `meta` object with `page`, `page_size`, `total`, and `total_pages`
+
+#### Scenario: Public client omits pagination parameters
+- **WHEN** any client requests the opportunities collection without pagination parameters
+- **THEN** the system returns the first page using the default page size and includes pagination metadata
+
+#### Scenario: Public client sends invalid pagination values
+- **WHEN** any client requests the opportunities collection with invalid `page` or `page_size` values
+- **THEN** the system clamps them to the valid range and still returns a successful paginated response
+
 ### Requirement: Opportunity lookup
-The system SHALL allow any client to retrieve a published opportunity by identifier.
+The system SHALL allow any client to retrieve a published opportunity by identifier and SHALL allow an authenticated admin to retrieve an opportunity in any status.
 
 #### Scenario: Existing published opportunity is requested
 - **WHEN** any client requests a published opportunity by an existing identifier
+- **THEN** the system returns that opportunity
+
+#### Scenario: Admin requests unpublished opportunity
+- **WHEN** an authenticated admin requests a draft, closed, or archived opportunity by an existing identifier
 - **THEN** the system returns that opportunity
 
 #### Scenario: Missing opportunity is requested
@@ -101,3 +125,4 @@ The system SHALL allow an authorized admin to remove an opportunity.
 #### Scenario: Missing opportunity deletion is requested
 - **WHEN** an authenticated admin requests deletion of an unknown opportunity
 - **THEN** the system returns a not found response
+

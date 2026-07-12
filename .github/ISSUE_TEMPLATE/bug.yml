@@ -1,0 +1,49 @@
+name: Bug Report
+description: Reporte um problema encontrado na aplicação.
+title: "[BUG] "
+labels:
+  - bug
+
+body:
+  - type: textarea
+    id: descricao
+    attributes:
+      label: Descrição
+      description: Descreva claramente o problema encontrado.
+      placeholder: Explique o que aconteceu.
+    validations:
+      required: true
+
+  - type: textarea
+    id: passos_reproduzir
+    attributes:
+      label: Passos para reproduzir
+      description: Informe os passos necessários para reproduzir o problema.
+      placeholder: |
+        1. Acesse...
+        2. Clique em...
+        3. Informe...
+        4. O erro acontece.
+    validations:
+      required: true
+
+  - type: textarea
+    id: comportamento_atual
+    attributes:
+      label: Comportamento atual
+      description: Descreva o comportamento observado.
+    validations:
+      required: true
+
+  - type: textarea
+    id: comportamento_esperado
+    attributes:
+      label: Comportamento esperado
+      description: Descreva qual seria o comportamento correto.
+    validations:
+      required: true
+
+
+
+
+
