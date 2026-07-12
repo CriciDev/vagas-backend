@@ -25,15 +25,58 @@ func (service *Service) Create(ctx context.Context, request SaveOpportunityReque
 	return service.repo.Create(ctx, opportunity)
 }
 
-func (service *Service) List(ctx context.Context, filters ListFilters) ([]Opportunity, error) {
+func (service *Service) List(ctx context.Context, filters ListFilters, pagination Pagination) (OpportunityPage, error) {
+	pagination = NewPagination(pagination.Page, pagination.PageSize)
 	filters = normalizeFilters(filters)
 	if filters.Type != "" && !validOpportunityType(filters.Type) {
-		return nil, ErrValidation
+		return OpportunityPage{}, ErrValidation
 	}
 	if filters.WorkMode != "" && !validWorkMode(filters.WorkMode) {
-		return nil, ErrValidation
+		return OpportunityPage{}, ErrValidation
 	}
-	return service.repo.List(ctx, filters)
+
+	items, total, err := service.repo.List(ctx, filters, pagination)
+	if err != nil {
+		return OpportunityPage{}, err
+	}
+
+	return OpportunityPage{
+		Data: items,
+		Meta: PageMeta{
+			Page:       pagination.Page,
+			PageSize:   pagination.PageSize,
+			Total:      total,
+			TotalPages: totalPages(total, pagination.PageSize),
+		},
+	}, nil
+}
+
+func NewPagination(page, pageSize int) Pagination {
+	if page < 1 {
+		page = 1
+	}
+	if pageSize < 1 {
+		pageSize = DefaultPageSize
+	}
+	if pageSize > MaxPageSize {
+		pageSize = MaxPageSize
+	}
+	return Pagination{Page: page, PageSize: pageSize}
+}
+
+func (pagination Pagination) Offset() int {
+	return (pagination.Page - 1) * pagination.PageSize
+}
+
+func (pagination Pagination) Limit() int {
+	return pagination.PageSize
+}
+
+func totalPages(total, pageSize int) int {
+	if pageSize <= 0 {
+		return 0
+	}
+	return (total + pageSize - 1) / pageSize
 }
 
 func (service *Service) FindByID(ctx context.Context, id int64, includeUnpublished bool) (Opportunity, error) {

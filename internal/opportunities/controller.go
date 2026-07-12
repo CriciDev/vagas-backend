@@ -41,11 +41,22 @@ func (handler *Handler) Create(ctx *gin.Context) {
 }
 
 func (handler *Handler) List(ctx *gin.Context) {
-	opportunities, err := handler.service.List(ctx.Request.Context(), ListFilters{
+	page, err := strconv.Atoi(ctx.Query("page"))
+	if err != nil {
+		page = 0
+	}
+	pageSize, err := strconv.Atoi(ctx.Query("page_size"))
+	if err != nil {
+		pageSize = 0
+	}
+
+	filters := ListFilters{
 		Type:     ctx.Query("type"),
 		WorkMode: ctx.Query("work_mode"),
 		Location: ctx.Query("location"),
-	})
+	}
+
+	result, err := handler.service.List(ctx.Request.Context(), filters, NewPagination(page, pageSize))
 	if errors.Is(err, ErrValidation) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid opportunity filters"})
 		return
@@ -55,7 +66,7 @@ func (handler *Handler) List(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, opportunities)
+	ctx.JSON(http.StatusOK, result)
 }
 
 func (handler *Handler) FindByID(ctx *gin.Context) {

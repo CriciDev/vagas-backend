@@ -13,7 +13,7 @@ import (
 type (
 	Repository interface {
 		Create(ctx context.Context, opportunity Opportunity) (Opportunity, error)
-		List(ctx context.Context, filters ListFilters) ([]Opportunity, error)
+		List(ctx context.Context, filters ListFilters, pagination Pagination) ([]Opportunity, int, error)
 		FindByID(ctx context.Context, id int64) (Opportunity, error)
 		FindPublishedByID(ctx context.Context, id int64) (Opportunity, error)
 		Update(ctx context.Context, opportunity Opportunity) (Opportunity, error)
@@ -45,7 +45,7 @@ func (repo *PostgresRepository) Create(ctx context.Context, opportunity Opportun
 	return scanOpportunity(row)
 }
 
-func (repo *PostgresRepository) List(ctx context.Context, filters ListFilters) ([]Opportunity, error) {
+func (repo *PostgresRepository) List(ctx context.Context, filters ListFilters, pagination Pagination) ([]Opportunity, int, error) {
 	clauses := []string{"status = 'published'"}
 	args := []any{}
 
@@ -62,17 +62,29 @@ func (repo *PostgresRepository) List(ctx context.Context, filters ListFilters) (
 		clauses = append(clauses, fmt.Sprintf("location ILIKE $%d", len(args)))
 	}
 
+	where := strings.Join(clauses, " AND ")
+
+	var total int
+	if err := repo.db.QueryRowContext(ctx, `SELECT count(*) FROM opportunities WHERE `+where, args...).Scan(&total); err != nil {
+		return nil, 0, err
+	}
+
+	args = append(args, pagination.Limit())
+	limitPlaceholder := len(args)
+	args = append(args, pagination.Offset())
+	offsetPlaceholder := len(args)
+
 	query := `
 		SELECT id, title, description, organization_name, organization_url, type, work_mode,
 			location, salary_range, seniority, skills, contact_email, contact_url, expires_at, status, created_at, updated_at
 		FROM opportunities
-		WHERE ` + strings.Join(clauses, " AND ") + `
+		WHERE ` + where + `
 		ORDER BY created_at DESC, id DESC
-	`
+		LIMIT ` + fmt.Sprintf("$%d", limitPlaceholder) + ` OFFSET ` + fmt.Sprintf("$%d", offsetPlaceholder)
 
 	rows, err := repo.db.QueryContext(ctx, query, args...)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	defer rows.Close()
 
@@ -80,16 +92,16 @@ func (repo *PostgresRepository) List(ctx context.Context, filters ListFilters) (
 	for rows.Next() {
 		opportunity, err := scanOpportunity(rows)
 		if err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 		opportunities = append(opportunities, opportunity)
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
-	return opportunities, nil
+	return opportunities, total, nil
 }
 
 func (repo *PostgresRepository) FindByID(ctx context.Context, id int64) (Opportunity, error) {
